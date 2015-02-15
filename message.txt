@@ -1,0 +1,2 @@
+Added git ignore file
+and multiline comments now real
