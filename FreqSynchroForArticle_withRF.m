@@ -1,4 +1,4 @@
-clear all;close all;
+% clear all;close all;
 FreqOffset = 4.5; % Frequency offcet in subcarrier spacing
 SNR = 30;
 %
