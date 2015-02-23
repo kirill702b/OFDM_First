@@ -1,6 +1,7 @@
-Simulating Ferr, SNRs
+Simulating 
 
-Simuliatciia zavisimosti ot OSSh dolgaia, sobiraius` umen`shit` dlinu pustogo nachal`nogo shuma.
-A voobshche zavisimost` ot OSSh poka ne poniatnaia. Iz-za netochnoi` sinkhronizatcii predlagaemy`i` metod 
-ochen` ploho sebia vedet (ogromny`e oshibki) - emu nuzhna tochnaia sinkhronizatciia.
-
+Probuiu modelirovat`. Modelirovanie idet dolgo i ne ochen` sovpadaet so stat`ei`.
+Hotia netochnoi` sinkhronizatcii net. Vozmozhno predel tochnosti skhemy` dostignut.
+V liubom sluchae nuzhno probovat` zapuskat` dolgoe modelirovanie.
+Realizovany` 3 razny`kh vremenny`kh sinkhronizatora. Realizovany` kanaly` AWGN i Rayleygh
+i dva metoda chastotnoi` ocenki.

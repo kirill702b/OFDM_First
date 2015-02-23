@@ -1,10 +1,10 @@
 clear all; close all;
 
 
-Ntests= 10;
+Ntests= 20;
 SNR_n = 0;
 FreqOffset_n = 0;
-SNRs = -30:10:0;% 10.^((0:3:25)/10);
+SNRs = 15:5:30;% 10.^((0:3:25)/10);
 Freqs = 8.3;% 1.1:0.3:2.3;
 FdSchmidlAll_awgn = zeros(length(SNRs),length(Freqs),Ntests);
 FdProposedAll_awgn = zeros(length(SNRs),length(Freqs),Ntests);
@@ -20,13 +20,14 @@ for SNR = SNRs
             FdProposedAll_awgn(SNR_n,FreqOffset_n,NumOfTest)=FdProposedAwgn;
             FdSchmidlAll_ray(SNR_n,FreqOffset_n,NumOfTest)=FdSchmidlRay;
             FdProposedAll_ray(SNR_n,FreqOffset_n,NumOfTest)=FdProposedRay;
+            fprintf('Number of test is %d of %d\n',NumOfTest,Ntests);
         end
         close all;
-        FreqOffset
+        fprintf('Frequency offcet is %3.1f\n',FreqOffset);
     end  
     FreqOffset_n = 0;
     
-    SNR
+    fprintf('SNR is %d\n',SNR);
 end
-save('file1.mat','FdSchmidlAll_awgn','FdProposedAll_awgn','FdSchmidlAll_ray','FdProposedAll_ray','Freqs','SNRs','Ntests');
+save('file2.mat','FdSchmidlAll_awgn','FdProposedAll_awgn','FdSchmidlAll_ray','FdProposedAll_ray','Freqs','SNRs','Ntests');
 

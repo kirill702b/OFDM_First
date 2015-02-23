@@ -1,5 +1,5 @@
 clear;
-load('file1.mat');
+load('file2.mat');
 
 % FdSchmidlAll_awgn_mean =mean(FdSchmidlAll_awgn,3);
 % FdProposedAll_awgn_mean = mean(FdProposedAll_awgn,3);
