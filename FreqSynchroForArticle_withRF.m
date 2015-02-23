@@ -1,6 +1,6 @@
 clear all;close all;
-FreqOffset = 0.7; % Frequency offcet in subcarrier spacing
-SNR = -20;
+FreqOffset = 10.3; % Frequency offcet in subcarrier spacing
+SNR = 15;
 %
 Nc = 1000; % Number of subcarriers
 N = 1024; % Number of IFFT points
@@ -74,11 +74,11 @@ seq1UpFcRayF0 = seq1UpFcRay.*exp(-1i*2*pi*Fc*tUp);%сигнал после переноса частоты
 % plot(seq1UpFcAwgnF0);
 % plot(seq1UpFcRayF0,'r');
 
-[pw,f]=pwelch(seq1UpFcAwgnF0,[],[],nfft,Fs);% спектр сигнала 
-figure;hold on;grid on;plot(f,10*log10(pw));grid on;%рисуем
-
-[pw,f]=pwelch(seq1UpFcRayF0,[],[],nfft,Fs);% спектр сигнала 
-plot(f,10*log10(pw),'r');grid on;%рисуем
+% [pw,f]=pwelch(seq1UpFcAwgnF0,[],[],nfft,Fs);% спектр сигнала 
+% figure;hold on;grid on;plot(f,10*log10(pw));grid on;%рисуем
+% 
+% [pw,f]=pwelch(seq1UpFcRayF0,[],[],nfft,Fs);% спектр сигнала 
+% plot(f,10*log10(pw),'r');grid on;%рисуем
 %%
 seq1UpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq1UpFcAwgnF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
 seq1UpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq1UpFcRayF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
@@ -105,6 +105,27 @@ tResp = 1:length(RespOfFind);
 figure;hold on;grid on;%рисуем отклики во времени
 plot(tResp(2.2*N:end-3*N),abs(RespOfFind(1,2.2*N:end-3*N)));%2.2*N:end-3*N
 plot(tResp(2.2*N:end-3*N),abs(RespOfFind(2,2.2*N:end-3*N)),'r');
+
+maxAwgn = 0;
+maxAwgnInd = 0;
+maxRay = 0;
+maxRayInd = 0;
+curMax = 0;
+for j=fix(2.2*N):4198
+    curMax = sum(RespOfFind(1,j:j+99));
+    if curMax>maxAwgn
+        maxAwgn = curMax;
+        maxAwgnInd = j;
+    end
+    curMax = sum(RespOfFind(2,j:j+99));
+    if curMax>maxRay
+        maxRay = curMax;
+        maxRayInd = j;
+    end
+end
+maxAwgnInd-3073
+maxRayInd-3073
+% 
 % plot(abs(RespOfFind(1,:)));%2.2*N:end-3*N
 % plot(abs(RespOfFind(2,:)),'r');
 
@@ -126,12 +147,15 @@ t12 = (1:length(AA_B(1,:)));
 % seq1df(1,:) = seq1(1,3*N+1:3*N+N).*exp(1i*(2*pi*FreqOffset*t1/N));%Сначала брал только неискаженную последовательность, сдвинутую
 % seq12df(1,:) = seq1(1,3*N+1:3*N+N+N+fix(CP*N)).*exp(1i*(2*pi*FreqOffset*t12/N));
 
+%%
+seq1df(1,:) = seq1UpFcAwgnF0Dec500LpfFs1(1,maxAwgnInd:maxAwgnInd+N-1);%Теперь уже все по честному 
+seq12df(1,:) = seq1UpFcAwgnF0Dec500LpfFs1(1,maxAwgnInd:maxAwgnInd-1+N+N+fix(CP*N));%АГБШ
 
-seq1df(1,:) = seq1UpFcAwgnF0Dec500LpfFs1(1,3*N+1:3*N+N);%Теперь уже все по честному 
-seq12df(1,:) = seq1UpFcAwgnF0Dec500LpfFs1(1,3*N+1:3*N+N+N+fix(CP*N));%АГБШ
+seq1df(2,:) = seq1UpFcRayF0Dec500LpfFs1(1,maxRayInd:maxRayInd-1+N);%Теперь уже все по честному
+seq12df(2,:) = seq1UpFcRayF0Dec500LpfFs1(1,maxRayInd:maxRayInd-1+N+N+fix(CP*N));%РЭЛЕЙ
 
-seq1df(2,:) = seq1UpFcRayF0Dec500LpfFs1(1,3*N+1:3*N+N);%Теперь уже все по честному
-seq12df(2,:) = seq1UpFcRayF0Dec500LpfFs1(1,3*N+1:3*N+N+N+fix(CP*N));%РЭЛЕЙ
+
+
 
 
 
@@ -188,12 +212,11 @@ for i = 1:N/2
     BgRay(i) = power(abs(sum(  F1F2sh(1:2:end).*  conj(Vk)      )),2)/2/power(sum(power(abs(F2),2)),2);
 end
 
-%%
 FdProposedAwgn = FcoarseAwgn + FfineAwgn - 1
 FdSchmidlAwgn = (1+256-find(BgAwgn==max(BgAwgn)))*2 +feAwgn% 2*(513-(find(BgAwgn==max(BgAwgn)))) + feAwgn
 
 FdProposedRay = FcoarseRay + FfineRay - 1
-FdSchmidlRay = (1+256-find(BgAwgn==max(BgAwgn)))*2 +feAwgn%2*(513-(find(BgRay==max(BgRay)))) + feRay
+FdSchmidlRay = (1+256-find(BgRay==max(BgRay)))*2 +feRay%2*(513-(find(BgRay==max(BgRay)))) + feRay
 
 % figure;plot(abs(conj(F1).*F2));
 

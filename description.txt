@@ -1,4 +1,6 @@
-Fixed fading channel. To simulation
+Simulating Ferr, SNRs
 
-Разобрался с рэлеевским каналом
-Следующее это моделировать, пробовать строить картинки
+Simuliatciia zavisimosti ot OSSh dolgaia, sobiraius` umen`shit` dlinu pustogo nachal`nogo shuma.
+A voobshche zavisimost` ot OSSh poka ne poniatnaia. Iz-za netochnoi` sinkhronizatcii predlagaemy`i` metod 
+ochen` ploho sebia vedet (ogromny`e oshibki) - emu nuzhna tochnaia sinkhronizatciia.
+
