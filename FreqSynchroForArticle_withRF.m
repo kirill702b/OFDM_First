@@ -1,7 +1,7 @@
 % clear all;close all;
 % tic;
-% FreqOffset = 10.3; % Frequency offcet in subcarrier spacing
-% SNR = -35;
+% FreqOffset = 12.4; % Frequency offcet in subcarrier spacing
+% SNR = -30;
 %
 Nc = 1000; % Number of subcarriers
 N = 1024; % Number of IFFT points
@@ -21,7 +21,7 @@ Nnoise = 400;%number of noise samples
 phiRand = 2*pi/3;
 Nshow = 100;
 
-FullTimingSyncSim = 0;
+FullTimingSyncSim = 0;%Enable simulation of second method of timing synchronization
 EnableGraphs = 0;
 EnableOutput = 0;
 % 
@@ -73,8 +73,11 @@ nfft = 2^15;
 % figure;plot(f,10*log10(pw));grid on;
 % [pw,f]=pwelch(aa1,[],[],nfft,Fs);
 % figure;plot(f-Fs/2,[pw(nfft/2+1:nfft);pw(1:nfft/2)]);grid on;
-
-RayCh1 = rayleighchan(1/Fs,277.3,DelOfPath,AvRecPwr);
+if ~exist('RayCh1')
+    RayCh1 = rayleighchan(1/Fs,277.3,DelOfPath,AvRecPwr);
+    RayCh1.ResetBeforeFiltering = 0;
+end
+% RayCh1.
 seq1UpFcAwgn = awgn(seq1UpFc,SNR,'measured');%сигнал после АГБШ канала
 seq1UpFcRay = awgn(filter(RayCh1,seq1UpFc),SNR,'measured');
 
@@ -248,7 +251,8 @@ seq1df(2,:) = seq1UpFcRayF0Dec500LpfFs1(1,maxRayIndPro:maxRayIndPro-1+N);%Теперь
 seq12df(2,:) = seq1UpFcRayF0Dec500LpfFs1(1,maxRayIndPro:maxRayIndPro-1+N+N+fix(CP*N));%РЭЛЕЙ
 
 % FkAwgn = fft(conj(AA).*seq1df(1,:),N);
-FkAwgn = fft(conj(B).*seq12df(1,N+fix(CP*N)+1:N+fix(CP*N)+N),N);
+% FkAwgn = fft(conj(B).*seq12df(1,N+fix(CP*N)+1:N+fix(CP*N)+N),N);
+FkAwgn = fft(conj(AA).*seq12df(1,1:N),N);
 FkAwgn = [FkAwgn(N/2+1:end),FkAwgn(1:N/2)];
 kmax =  find(abs(FkAwgn)==max(abs(FkAwgn)));
 FcoarseAwgn = kmax-N/2;
@@ -261,7 +265,8 @@ FfineAwgn = alp/(abs(FkAwgn(kmax))/abs(FkAwgn(kmax+alp))+1);
 
 
 % FkRay = fft(conj(AA).*seq1df(2,:),N);
-FkRay = fft(conj(B).*seq12df(2,N+fix(CP*N)+1:N+fix(CP*N)+N),N);
+% FkRay = fft(conj(B).*seq12df(2,N+fix(CP*N)+1:N+fix(CP*N)+N),N);
+FkRay = fft(conj(AA).*seq12df(2,1:N),N);
 FkRay = [FkRay(N/2+1:end),FkRay(1:N/2)];
 kmax =  find(abs(FkRay)==max(abs(FkRay)));
 FcoarseRay = kmax-N/2;
@@ -307,18 +312,15 @@ for i = 1:N/2
     F1F2sh = circshift(F1F2,[0,2*(i-1)]);
     BgRay(i) = power(abs(sum(  F1F2sh(1:2:end).*  conj(Vk)      )),2)/2/power(sum(power(abs(F2),2)),2);
 end
+FdProposedAwgn = FcoarseAwgn + FfineAwgn - 1;
+FdSchmidlAwgn = (1+256-find(BgAwgn==max(BgAwgn)))*2 +feAwgn;% 2*(513-(find(BgAwgn==max(BgAwgn)))) + feAwgn
+
+FdProposedRay = FcoarseRay + FfineRay - 1;
+FdSchmidlRay = (1+256-find(BgRay==max(BgRay)))*2 +feRay;%2*(513-(find(BgRay==max(BgRay)))) + feRay
 if EnableOutput
-    FdProposedAwgn = FcoarseAwgn + FfineAwgn - 1
-    FdSchmidlAwgn = (1+256-find(BgAwgn==max(BgAwgn)))*2 +feAwgn% 2*(513-(find(BgAwgn==max(BgAwgn)))) + feAwgn
-
-    FdProposedRay = FcoarseRay + FfineRay - 1
-    FdSchmidlRay = (1+256-find(BgRay==max(BgRay)))*2 +feRay%2*(513-(find(BgRay==max(BgRay)))) + feRay
-else
-    FdProposedAwgn = FcoarseAwgn + FfineAwgn - 1;
-    FdSchmidlAwgn = (1+256-find(BgAwgn==max(BgAwgn)))*2 +feAwgn;% 2*(513-(find(BgAwgn==max(BgAwgn)))) + feAwgn
-
-    FdProposedRay = FcoarseRay + FfineRay - 1;
-    FdSchmidlRay = (1+256-find(BgRay==max(BgRay)))*2 +feRay;%2*(513-(find(BgRay==max(BgRay)))) + feRay
+   fprintf('Error of proposed method is %.5f (awgn), %.5f (rayleygh)\n',FdProposedAwgn-FreqOffset,FdProposedRay-FreqOffset);
+   fprintf('Error of Schmidl method is %.5f (awgn), %.5f (rayleygh)\n',FdSchmidlAwgn-FreqOffset,FdSchmidlRay-FreqOffset);      
+   
 end
 % toc;
 % figure;plot(abs(conj(F1).*F2));

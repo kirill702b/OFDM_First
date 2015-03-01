@@ -1,11 +1,11 @@
 clear all; close all;
 
 
-Ntests= 20;
+Ntests= 100;
 SNR_n = 0;
 FreqOffset_n = 0;
-SNRs = 15:5:30;% 10.^((0:3:25)/10);
-Freqs = 8.3;% 1.1:0.3:2.3;
+SNRs = -30:30:30;% 10.^((0:3:25)/10);
+Freqs = 12.4;% 1.1:0.3:2.3;
 FdSchmidlAll_awgn = zeros(length(SNRs),length(Freqs),Ntests);
 FdProposedAll_awgn = zeros(length(SNRs),length(Freqs),Ntests);
 FdSchmidlAll_ray = zeros(length(SNRs),length(Freqs),Ntests);
@@ -19,15 +19,18 @@ for SNR = SNRs
             FdSchmidlAll_awgn(SNR_n,FreqOffset_n,NumOfTest)=FdSchmidlAwgn;
             FdProposedAll_awgn(SNR_n,FreqOffset_n,NumOfTest)=FdProposedAwgn;
             FdSchmidlAll_ray(SNR_n,FreqOffset_n,NumOfTest)=FdSchmidlRay;
-            FdProposedAll_ray(SNR_n,FreqOffset_n,NumOfTest)=FdProposedRay;
-            fprintf('Number of test is %d of %d\n',NumOfTest,Ntests);
+            FdProposedAll_ray(SNR_n,FreqOffset_n,NumOfTest)=FdProposedRay;            
+            fprintf('SNR is %d, FreqOffset is %3.1f, test num is %d of %d; Proposed is better for %3.4f,%3.4f;\n',...
+                SNR,FreqOffset,NumOfTest,Ntests,abs(FdSchmidlAwgn-FreqOffset)-abs(FdProposedAwgn-FreqOffset),abs(FdSchmidlRay-FreqOffset)-abs(FdProposedRay-FreqOffset));
+%             fprintf('SNR is %d, FreqOffset is %3.1f, test num is %d of %d, Errors:\n Proposed is %3.4f,%3.4f;\n  Schmidl is %3.4f,%3.4f.\n',...
+%                 SNR,FreqOffset,NumOfTest,Ntests,FdProposedAwgn-FreqOffset,FdProposedRay-FreqOffset,FdSchmidlAwgn-FreqOffset,FdSchmidlRay-FreqOffset);
         end
         close all;
-        fprintf('Frequency offcet is %3.1f\n',FreqOffset);
+%         fprintf('Frequency offcet is %3.1f\n',FreqOffset);
     end  
     FreqOffset_n = 0;
     
-    fprintf('SNR is %d\n',SNR);
+%     fprintf('SNR is %d\n',SNR);
 end
-save('file2.mat','FdSchmidlAll_awgn','FdProposedAll_awgn','FdSchmidlAll_ray','FdProposedAll_ray','Freqs','SNRs','Ntests');
+save('file_SNR_m30_30_30_Ntests_30_n3.mat','FdSchmidlAll_awgn','FdProposedAll_awgn','FdSchmidlAll_ray','FdProposedAll_ray','Freqs','SNRs','Ntests');
 
