@@ -1,7 +1,12 @@
-% clear all;close all;
-% tic;
-% FreqOffset = 12.4; % Frequency offcet in subcarrier spacing
-% SNR = 0;
+%Идеи: 1) не работает для начала потому, что frs2 не используется для
+%составления последовательности B, но используется в поиске, заменить
+%а потом возможно, это нельзя просто потому что А особенная
+%последовательность у которой - что-то типа только четные.
+%поэтому можно взять половину B = A(end:-1:1), вторая половина случайная
+clear all;close all;
+tic;
+FreqOffset = 12.4; % Frequency offcet in subcarrier spacing
+SNR =30;
 %
 ProposedError =0;
 ShmidlError = 0;
@@ -26,15 +31,16 @@ Nshow = 100;
 
 FullTimingSyncSim = 0;%Enable simulation of second method of timing synchronization
 EnableGraphs = 1;
-EnableOutput = 0;
+EnableOutput = 1;
 % 
 
 frs = (randi(2,[1 N/2])-1.5)*2;%mseq(2,log2(N/2)); последовательность +-1
 frs2 = (randi(2,[1 N])-1.5)*2;% вторая последовательность
 
 A = ifft(frs,N/2);%A -последовательность длины N/2
-B = ifft(frs2,N);% последовательность длины N
+%ifft(frs2,N);% последовательность длины N
 AA = [A(1:N/2),A(1:N/2)];% последовательность длины N
+B = conj(AA(end:-1:1));
 AA_B = [AA, zeros(1,fix(CP*N)),B]; %две последовательности длины 2048+102=2150
 seq1 = [zeros(1,Nnoise),real(AA_B),zeros(1,Nnoise)]+1i* [zeros(1,Nnoise),imag(AA_B),zeros(1,Nnoise)];% последовательность с началом и концом без сигнала
 %seq1 - это для метода шмидля
@@ -124,15 +130,24 @@ seq3UpFcAwgnF0Dec500LpfFs1 = decimate(seq3UpFcAwgnF0Dec500Lpf,2,128,'fir'); % ит
 seq3UpFcRayF0Dec500LpfFs1 = decimate(seq3UpFcRayF0Dec500Lpf,2,128,'fir'); % итоговая децимация в 2раза, до изначальной частоты
 
 
-for j=1:2*Nnoise %ищем начало (синхронизация) для АГБШ канала
-    P1 = sum(conj(seq1UpFcAwgnF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1UpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));
-    R1 = sum(power(abs(seq1UpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));
-    RespOfFind(1,j) = power(abs(P1),2)/power(R1,2); % отклик на поиск
+
+for j=N+1+fix(CP*N)/2:N+2*Nnoise
+    P1 = 0;R1 = 0;
+    for k = 0:N-1
+        P1 = P1 + seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1+fix(CP*N)/2)*seq1UpFcAwgnF0Dec500LpfFs1(1,j-k-fix(CP*N)/2);
+        R1 = R1 + power(abs(seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1+fix(CP*N)/2)),2);
+%         abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);
+    end  
+    RespOfFind(1,j-N/2-N/2-fix(CP*N)/2) = power(abs(P1),2)/power(R1,2);
 end
-for j=1:2*Nnoise %ищем начало (синхронизация) для рэлеевского канала
-    P1 = sum(conj(seq1UpFcRayF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1UpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));
-    R1 = sum(power(abs(seq1UpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));
-    RespOfFind(2,j) = power(abs(P1),2)/power(R1,2); %отклик на поиск
+for j=N+1+fix(CP*N)/2:N+2*Nnoise
+    P1 = 0;R1 = 0;
+    for k = 0:N-1
+        P1 = P1 + seq1UpFcRayF0Dec500LpfFs1(1,j+k-1+fix(CP*N)/2)*seq1UpFcRayF0Dec500LpfFs1(1,j-k-fix(CP*N)/2);
+        R1 = R1 + power(abs(seq1UpFcRayF0Dec500LpfFs1(1,j+k-1+fix(CP*N)/2)),2);
+%         abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);
+    end  
+    RespOfFind(2,j-N/2-N/2-fix(CP*N)/2) = power(abs(P1),2)/power(R1,2);
 end
 
 for j=N/2+1:N/2+2*Nnoise

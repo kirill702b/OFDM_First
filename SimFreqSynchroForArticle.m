@@ -1,10 +1,10 @@
 clear all; close all;
 
 
-Ntests= 50;
+Ntests= 250;
 SNR_n = 0;
 FreqOffset_n = 0;
-SNRs = 0:5:30;% 10.^((0:3:25)/10);
+SNRs = 0:3:30;% 10.^((0:3:25)/10);
 Freqs = 12.4;% 1.1:0.3:2.3;
 FdSchmidlAll_awgn = zeros(length(SNRs),length(Freqs),Ntests);
 FdProposedAll_awgn = zeros(length(SNRs),length(Freqs),Ntests);
