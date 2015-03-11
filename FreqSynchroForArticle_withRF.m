@@ -1,8 +1,11 @@
 % clear all;close all;
 % tic;
 % FreqOffset = 12.4; % Frequency offcet in subcarrier spacing
-% SNR = -30;
+% SNR = 0;
 %
+ProposedError =0;
+ShmidlError = 0;
+FreqDop = 100;
 Nc = 1000; % Number of subcarriers
 N = 1024; % Number of IFFT points
 Rd = 18e6; % Data rate bit per second
@@ -22,7 +25,7 @@ phiRand = 2*pi/3;
 Nshow = 100;
 
 FullTimingSyncSim = 0;%Enable simulation of second method of timing synchronization
-EnableGraphs = 0;
+EnableGraphs = 1;
 EnableOutput = 0;
 % 
 
@@ -74,12 +77,13 @@ nfft = 2^15;
 % [pw,f]=pwelch(aa1,[],[],nfft,Fs);
 % figure;plot(f-Fs/2,[pw(nfft/2+1:nfft);pw(1:nfft/2)]);grid on;
 if ~exist('RayCh1')
-    RayCh1 = rayleighchan(1/Fs,277.3,DelOfPath,AvRecPwr);
-    RayCh1.ResetBeforeFiltering = 0;
+    RayCh1 = rayleighchan(1/Fs,FreqDop,DelOfPath,AvRecPwr);
+%     RayCh1 = ricianchan(1/Fs,277.3,10,DelOfPath,AvRecPwr);
+    RayCh1.ResetBeforeFiltering = 1;
 end
 % RayCh1.
-seq1UpFcAwgn = awgn(seq1UpFc,SNR,'measured');%сигнал после АГБШ канала
-seq1UpFcRay = awgn(filter(RayCh1,seq1UpFc),SNR,'measured');
+seq1UpFcAwgn = awgn(seq1UpFc,SNR);%,'measured');%сигнал после АГБШ канала
+seq1UpFcRay = awgn(filter(RayCh1,seq1UpFc),SNR);%,'measured');
 
 seq3UpFcAwgn = awgn(seq3UpFc,SNR,'measured');%сигнал после АГБШ канала
 seq3UpFcRay = awgn(filter(RayCh1,seq3UpFc),SNR,'measured');
@@ -178,6 +182,7 @@ if FullTimingSyncSim
     end
 end
 tResp = 1:length(RespOfFind);
+ close all;
 if EnableGraphs
     figure;hold on;grid on;%рисуем отклики во времени
     plot(tResp(:)-Nnoise-1,abs(RespOfFind(1,:)),'--');%2.2*N:end-3*N
@@ -201,6 +206,7 @@ if EnableGraphs
         legend('Метод Шмидля','Метод Минна');
     end
     xlabel('Дискретные отсчеты');ylabel('Временная метрика, ед.');
+    drawnow;
 end
 maxAwgnSch = 0;
 maxAwgnIndSch = 0;
@@ -231,8 +237,8 @@ end
 if maxAwgnIndPro-Nnoise-1~=0 || maxRayIndPro-Nnoise-1~=0
     maxAwgnIndPro
     maxRayIndPro
+    ProposedError = 1;
 end
-
 % 
 
 Vk = sqrt(2).*frs2(1:2:end)./frs;%вспомогательная последовательность
@@ -317,6 +323,9 @@ FdSchmidlAwgn = (1+256-find(BgAwgn==max(BgAwgn)))*2 +feAwgn;% 2*(513-(find(BgAwg
 
 FdProposedRay = FcoarseRay + FfineRay - 1;
 FdSchmidlRay = (1+256-find(BgRay==max(BgRay)))*2 +feRay;%2*(513-(find(BgRay==max(BgRay)))) + feRay
+if abs(FdSchmidlRay-FreqOffset )>0.9
+    ShmidlError = 1;
+end
 if EnableOutput
    fprintf('Error of proposed method is %.5f (awgn), %.5f (rayleygh)\n',FdProposedAwgn-FreqOffset,FdProposedRay-FreqOffset);
    fprintf('Error of Schmidl method is %.5f (awgn), %.5f (rayleygh)\n',FdSchmidlAwgn-FreqOffset,FdSchmidlRay-FreqOffset);      

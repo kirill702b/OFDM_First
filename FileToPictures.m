@@ -1,5 +1,5 @@
-clear;
-load('file_SNR_m30_30_30_Ntests_30.mat');
+clear; close all;
+load('file_SNR_0_3_30_Ntests_500_n15_fd277div10.mat');
 
 % FdSchmidlAll_awgn_mean =mean(FdSchmidlAll_awgn,3);
 % FdProposedAll_awgn_mean = mean(FdProposedAll_awgn,3);
@@ -27,10 +27,23 @@ FdProposedAll_awgnSnr1 = sqrt(mean(power((FdProposedAll_awgnSnr-Freqs),2),2));
 FdSchmidlAll_raySnr1 = sqrt(mean(power((FdSchmidlAll_raySnr-Freqs),2),2));
 FdProposedAll_raySnr1 = sqrt(mean(power((FdProposedAll_raySnr-Freqs),2),2));
 
-figure(1);hold on;grid on;
-plot(SNRs,FdSchmidlAll_awgnSnr1);
-plot(SNRs,FdProposedAll_awgnSnr1,'r');
+figure(1);
+% plot(SNRs,FdSchmidlAll_awgnSnr1);
+% plot(SNRs,FdProposedAll_awgnSnr1,'r');
+semilogy(SNRs,FdSchmidlAll_awgnSnr1);hold on;grid on;
+semilogy(SNRs,FdProposedAll_awgnSnr1,'r');
 
-figure(2);hold on;grid on;
-plot(SNRs,FdSchmidlAll_raySnr1);
-plot(SNRs,FdProposedAll_raySnr1,'r');
+figure(2);
+% plot(SNRs,FdSchmidlAll_raySnr1);
+% plot(SNRs,FdProposedAll_raySnr1,'r');
+semilogy(SNRs,FdSchmidlAll_raySnr1);hold on;grid on;
+semilogy(SNRs,FdProposedAll_raySnr1,'r');
+
+
+
+
+
+
+
+
+
