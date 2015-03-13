@@ -1,10 +1,10 @@
 clear all; close all;
 
 
-Ntests= 250;
+Ntests= 500;
 SNR_n = 0;
 FreqOffset_n = 0;
-SNRs = 0:3:30;% 10.^((0:3:25)/10);
+SNRs = 18:3:27;% 10.^((0:3:25)/10);
 Freqs = 12.4;% 1.1:0.3:2.3;
 FdSchmidlAll_awgn = zeros(length(SNRs),length(Freqs),Ntests);
 FdProposedAll_awgn = zeros(length(SNRs),length(Freqs),Ntests);
@@ -39,5 +39,5 @@ for SNR = SNRs
     
 %     fprintf('SNR is %d\n',SNR);
 end
-save('file_SNR_0_3_30_Ntests_500_n15_fd277div10.mat','FdSchmidlAll_awgn','FdProposedAll_awgn','FdSchmidlAll_ray','FdProposedAll_ray','Freqs','SNRs','Ntests');
+save('file_SNR_18_3_27_Ntests_500_n16_fd100.mat','FdSchmidlAll_awgn','FdProposedAll_awgn','FdSchmidlAll_ray','FdProposedAll_ray','Freqs','SNRs','Ntests');
 

@@ -1,5 +1,5 @@
 clear; close all;
-load('file_SNR_0_3_30_Ntests_500_n15_fd277div10.mat');
+load('file_SNR_18_3_27_Ntests_500_n16_fd100.mat');
 
 % FdSchmidlAll_awgn_mean =mean(FdSchmidlAll_awgn,3);
 % FdProposedAll_awgn_mean = mean(FdProposedAll_awgn,3);
