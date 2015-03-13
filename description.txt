@@ -1,0 +1,7 @@
+Simulating 
+
+Probuiu modelirovat`. Modelirovanie idet dolgo i ne ochen` sovpadaet so stat`ei`.
+Hotia netochnoi` sinkhronizatcii net. Vozmozhno predel tochnosti skhemy` dostignut.
+V liubom sluchae nuzhno probovat` zapuskat` dolgoe modelirovanie.
+Realizovany` 3 razny`kh vremenny`kh sinkhronizatora. Realizovany` kanaly` AWGN i Rayleygh
+i dva metoda chastotnoi` ocenki.
