@@ -1,34 +1,41 @@
 clear all; close all;
 
 
-Ntests= 500;
+Ntests= 250;
 SNR_n = 0;
 FreqOffset_n = 0;
-SNRs = 18:3:27;% 10.^((0:3:25)/10);
-Freqs = 12.4;% 1.1:0.3:2.3;
+SNRs = -6:3:30;% 10.^((0:3:25)/10);
+Freqs = 10.2;% 1.1:0.3:2.3;
 FdSchmidlAll_awgn = zeros(length(SNRs),length(Freqs),Ntests);
 FdProposedAll_awgn = zeros(length(SNRs),length(Freqs),Ntests);
 FdSchmidlAll_ray = zeros(length(SNRs),length(Freqs),Ntests);
 FdProposedAll_ray = zeros(length(SNRs),length(Freqs),Ntests);
+FdSchmidlOldAll_awgn = zeros(length(SNRs),length(Freqs),Ntests);
+FdSchmidlOldAll_ray = zeros(length(SNRs),length(Freqs),Ntests);
+
 for SNR = SNRs
     SNR_n = SNR_n + 1;
     for FreqOffset = Freqs
         FreqOffset_n = FreqOffset_n + 1;
         for NumOfTest = 1:Ntests
             FreqSynchroForArticle_withRF
-            if ~ProposedError && ~ShmidlError
+            if ~ProposedError && ~SchmidlError && ~SchmidlOldError
                 FdSchmidlAll_awgn(SNR_n,FreqOffset_n,NumOfTest)=FdSchmidlAwgn;
                 FdProposedAll_awgn(SNR_n,FreqOffset_n,NumOfTest)=FdProposedAwgn;
                 FdSchmidlAll_ray(SNR_n,FreqOffset_n,NumOfTest)=FdSchmidlRay;
-                FdProposedAll_ray(SNR_n,FreqOffset_n,NumOfTest)=FdProposedRay;            
+                FdProposedAll_ray(SNR_n,FreqOffset_n,NumOfTest)=FdProposedRay;    
+                FdSchmidlOldAll_awgn(SNR_n,FreqOffset_n,NumOfTest)=FdSchmidlAwgnOld;
+                FdSchmidlOldAll_ray(SNR_n,FreqOffset_n,NumOfTest)=FdSchmidlRayOld;
             else
                 FdSchmidlAll_awgn(SNR_n,FreqOffset_n,NumOfTest)=FreqOffset;
                 FdProposedAll_awgn(SNR_n,FreqOffset_n,NumOfTest)=FreqOffset;
                 FdSchmidlAll_ray(SNR_n,FreqOffset_n,NumOfTest)=FreqOffset;
                 FdProposedAll_ray(SNR_n,FreqOffset_n,NumOfTest)=FreqOffset;
+                FdSchmidlOldAll_awgn(SNR_n,FreqOffset_n,NumOfTest)=FreqOffset;
+                FdSchmidlOldAll_ray(SNR_n,FreqOffset_n,NumOfTest)=FreqOffset;
             end
-            fprintf('SNR is %d, FreqOffset is %3.1f, test num is %d of %d; Proposed is better for %3.4f,%3.4f;\n',...
-                SNR,FreqOffset,NumOfTest,Ntests,abs(FdSchmidlAwgn-FreqOffset)-abs(FdProposedAwgn-FreqOffset),abs(FdSchmidlRay-FreqOffset)-abs(FdProposedRay-FreqOffset));
+            fprintf('SNR is %d, FreqOffset is %3.1f, test num is %d of %d;\n Proposed Err      %3.4f %3.4f\n Schmidl New Error %3.4f %3.4f\n Schmidl Old Error %3.4f %3.4f\n',...
+                SNR,FreqOffset,NumOfTest,Ntests,(FdProposedAwgn-FreqOffset),(FdProposedRay-FreqOffset),(FdSchmidlAwgn-FreqOffset),(FdSchmidlRay-FreqOffset),(FdSchmidlAwgnOld-FreqOffset),(FdSchmidlRayOld-FreqOffset));
                 %             fprintf('SNR is %d, FreqOffset is %3.1f, test num is %d of %d, Errors:\n Proposed is %3.4f,%3.4f;\n  Schmidl is %3.4f,%3.4f.\n',...
 %                 SNR,FreqOffset,NumOfTest,Ntests,FdProposedAwgn-FreqOffset,FdProposedRay-FreqOffset,FdSchmidlAwgn-FreqOffset,FdSchmidlRay-FreqOffset);
         end
@@ -39,5 +46,6 @@ for SNR = SNRs
     
 %     fprintf('SNR is %d\n',SNR);
 end
-save('file_SNR_18_3_27_Ntests_500_n16_fd100.mat','FdSchmidlAll_awgn','FdProposedAll_awgn','FdSchmidlAll_ray','FdProposedAll_ray','Freqs','SNRs','Ntests');
+%%
+save('file_SNR_18_3_27_Ntests_500_n17_fd277.mat','FdSchmidlAll_awgn','FdProposedAll_awgn','FdSchmidlAll_ray','FdProposedAll_ray','Freqs','SNRs','Ntests','FdSchmidlOldAll_awgn','FdSchmidlOldAll_ray');
 

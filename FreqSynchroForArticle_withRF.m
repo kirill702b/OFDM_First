@@ -4,13 +4,18 @@
 %последовательность у которой - что-то типа только четные.
 %поэтому можно взять половину B = A(end:-1:1), вторая половина случайная
 % clear all;close all;
-% tic;
-% FreqOffset = 12.4; % Frequency offcet in subcarrier spacing
-% SNR =30;
+FreqOffset = 12.4; % Frequency offcet in subcarrier spacing
+SNR = -6;
 %
+% tic;
+EnableGraphs = 0;
+EnableOutput = 1;
+PartOfB1 = 0.5;
 ProposedError =0;
-ShmidlError = 0;
-FreqDop = 100;
+SchmidlError = 0;
+SchmidlOldError = 0;
+MaxFreqError = 0.25;
+FreqDop = 277;
 Nc = 1000; % Number of subcarriers
 N = 1024; % Number of IFFT points
 Rd = 18e6; % Data rate bit per second
@@ -30,20 +35,23 @@ phiRand = 2*pi/3;
 Nshow = 100;
 
 FullTimingSyncSim = 0;%Enable simulation of second method of timing synchronization
-EnableGraphs = 0;
-EnableOutput = 0;
+
 % 
 
 frs = (randi(2,[1 N/2])-1.5)*2;%mseq(2,log2(N/2)); последовательность +-1
 frs3 = (randi(2,[1 N])-1.5)*2;% вторая последовательность
-
+frs2Old = (randi(2,[1 N])-1.5)*2;
 A = ifft(frs,N/2);%A -последовательность длины N/2
 B1 = ifft(frs3,N);% последовательность длины N
 AA = [A(1:N/2),A(1:N/2)];% последовательность длины N
-B = [conj(A(end:-1:1)), B1(1:N/2)];
+% B = [conj(A(end:-1:1)), B1(1:N/2)];
+B = [conj(A(end:-1:1)),conj(A(end:-1:1+fix(N*PartOfB1))), B1(1:fix(N*PartOfB1))];
+BOld = ifft(frs2Old,N);
 frs2 = fft(B,N);
 AA_B = [AA, zeros(1,fix(CP*N)),B]; %две последовательности длины 2048+102=2150
 seq1 = [zeros(1,Nnoise),real(AA_B),zeros(1,Nnoise)]+1i* [zeros(1,Nnoise),imag(AA_B),zeros(1,Nnoise)];% последовательность с началом и концом без сигнала
+AA_BOld = [AA, zeros(1,fix(CP*N)),BOld];
+seq1Old = [zeros(1,Nnoise),real(AA_BOld),zeros(1,Nnoise)]+1i* [zeros(1,Nnoise),imag(AA_BOld),zeros(1,Nnoise)];% последовательность с началом и концом без сигнала
 %seq1 - это для метода шмидля
 %seq2 - это для метода proposed
 
@@ -62,6 +70,7 @@ seq3 = [zeros(1,Nnoise),real(CiCcCciC),zeros(1,Nnoise)]+1i* [zeros(1,Nnoise),ima
 % длина 6*N+2150 = 8294
 
 seq1Up = resample(seq1,Fs/Fs1,1); %последовательность на частоте 2ГГц, была на 20MHz
+seq1OldUp = resample(seq1Old,Fs/Fs1,1);
 seq3Up = resample(seq3,Fs/Fs1,1); 
 if FullTimingSyncSim
     seq2Up = resample(seq2,Fs/Fs1,1); 
@@ -69,6 +78,7 @@ end
 tUp = (1:length(seq1Up))/Fs;% вектор времен для этой новой последовательности 
 tUp3 = (1:length(seq3Up))/Fs;
 seq1UpFc = seq1Up.*exp(1i*2*pi*(Fc+FreqOffset*Fs1/N)*tUp);% последовательность уже на несущей + доплеровкий сдвиг
+seq1OldUpFc = seq1OldUp.*exp(1i*2*pi*(Fc+FreqOffset*Fs1/N)*tUp);% последовательность уже на несущей + доплеровкий сдвиг
 seq3UpFc = seq3Up.*exp(1i*2*pi*(Fc+FreqOffset*Fs1/N)*tUp3);
 if FullTimingSyncSim
     seq2UpFc = seq2Up.*exp(1i*2*pi*(Fc+FreqOffset*Fs1/N)*tUp3);
@@ -92,6 +102,10 @@ end
 seq1UpFcAwgn = awgn(seq1UpFc,SNR);%,'measured');%сигнал после АГБШ канала
 seq1UpFcRay = awgn(filter(RayCh1,seq1UpFc),SNR);%,'measured');
 
+seq1OldUpFcAwgn = awgn(seq1OldUpFc,SNR);%,'measured');%сигнал после АГБШ канала
+seq1OldUpFcRay = awgn(filter(RayCh1,seq1OldUpFc),SNR);%,'measured');
+
+
 seq3UpFcAwgn = awgn(seq3UpFc,SNR,'measured');%сигнал после АГБШ канала
 seq3UpFcRay = awgn(filter(RayCh1,seq3UpFc),SNR,'measured');
 
@@ -102,6 +116,9 @@ end
 
 seq1UpFcAwgnF0 = seq1UpFcAwgn.*exp(-1i*2*pi*Fc*tUp);%сигнал после переноса частоты на 0
 seq1UpFcRayF0 = seq1UpFcRay.*exp(-1i*2*pi*Fc*tUp);%сигнал после переноса частоты на 0
+seq1OldUpFcAwgnF0 = seq1OldUpFcAwgn.*exp(-1i*2*pi*Fc*tUp);%сигнал после переноса частоты на 0
+seq1OldUpFcRayF0 = seq1OldUpFcRay.*exp(-1i*2*pi*Fc*tUp);%сигнал после переноса частоты на 0
+
 seq3UpFcAwgnF0 = seq3UpFcAwgn.*exp(-1i*2*pi*Fc*tUp3);%сигнал после переноса частоты на 0
 seq3UpFcRayF0 = seq3UpFcRay.*exp(-1i*2*pi*Fc*tUp3);%сигнал после переноса частоты на 0
 if FullTimingSyncSim
@@ -118,10 +135,19 @@ end
 
 seq1UpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq1UpFcAwgnF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
 seq1UpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq1UpFcRayF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+seq1OldUpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq1OldUpFcAwgnF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+seq1OldUpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq1OldUpFcRayF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+
+
 seq1UpFcAwgnF0Dec500Lpf=seq1UpFcAwgnF0Dec500;%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcAwgnF0Dec500);%фильтрация для итоговой децимации
 seq1UpFcRayF0Dec500Lpf = seq1UpFcRayF0Dec500;%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcRayF0Dec500);% фильтрация для итоговой децимации
+seq1OldUpFcAwgnF0Dec500Lpf=seq1OldUpFcAwgnF0Dec500;%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcAwgnF0Dec500);%фильтрация для итоговой децимации
+seq1OldUpFcRayF0Dec500Lpf = seq1OldUpFcRayF0Dec500;%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcRayF0Dec500);% фильтрация для итоговой децимации
+
 seq1UpFcAwgnF0Dec500LpfFs1 = decimate(seq1UpFcAwgnF0Dec500Lpf,2,128,'fir'); % итоговая децимация в 2раза, до изначальной частоты
 seq1UpFcRayF0Dec500LpfFs1 = decimate(seq1UpFcRayF0Dec500Lpf,2,128,'fir'); % итоговая децимация в 2раза, до изначальной частоты
+seq1OldUpFcAwgnF0Dec500LpfFs1 = decimate(seq1OldUpFcAwgnF0Dec500Lpf,2,128,'fir'); % итоговая децимация в 2раза, до изначальной частоты
+seq1OldUpFcRayF0Dec500LpfFs1 = decimate(seq1OldUpFcRayF0Dec500Lpf,2,128,'fir'); % итоговая децимация в 2раза, до изначальной частоты
 
 seq3UpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq3UpFcAwgnF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
 seq3UpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq3UpFcRayF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
@@ -131,7 +157,11 @@ seq3UpFcAwgnF0Dec500LpfFs1 = decimate(seq3UpFcAwgnF0Dec500Lpf,2,128,'fir'); % ит
 seq3UpFcRayF0Dec500LpfFs1 = decimate(seq3UpFcRayF0Dec500Lpf,2,128,'fir'); % итоговая децимация в 2раза, до изначальной частоты
 
 
-
+% RespOfFind:
+% 1 - Schmild new AWGN, 2 - Schmidl new Rayleygh
+% 3 - Park AWGN, 4 - Park Rayleygh
+% 5 - Minn AWGN, 6 - Minn Rayleygh
+% 7 - Schmild old AWGN, 8 - Schmidl old Rayleygh
 for j=N+1+fix(CP*N)/2:N+2*Nnoise
     P1 = 0;R1 = 0;
     for k = 0:N/2-1
@@ -169,7 +199,16 @@ for j=N/2+1:N/2+2*Nnoise
     end  
     RespOfFind(4,j-N/2) = power(abs(P1),2)/power(R1,2);
 end
-
+for j=1:2*Nnoise %???? ?????? (?????????????) ??? ???? ??????
+    P1 = sum(conj(seq1OldUpFcAwgnF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1OldUpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));
+    R1 = sum(power(abs(seq1OldUpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));
+    RespOfFind(7,j) = power(abs(P1),2)/power(R1,2); % ?????? ?? ?????
+end
+for j=1:2*Nnoise %???? ?????? (?????????????) ??? ???? ??????
+    P1 = sum(conj(seq1OldUpFcRayF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1OldUpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));
+    R1 = sum(power(abs(seq1OldUpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));
+    RespOfFind(8,j) = power(abs(P1),2)/power(R1,2); % ?????? ?? ?????
+end
 
 
 if FullTimingSyncSim
@@ -202,64 +241,74 @@ tResp = 1:length(RespOfFind);
 if EnableGraphs
     figure;hold on;grid on;%рисуем отклики во времени
     plot(tResp(:)-Nnoise-1,abs(RespOfFind(1,:)),'--');%2.2*N:end-3*N
-    plot(tResp(:)-Nnoise-1,abs(RespOfFind(3,:)),'r');
+%     plot(tResp(:)-Nnoise-1,abs(RespOfFind(3,:)),'r');
+    plot(tResp(:)-Nnoise-1,abs(RespOfFind(7,:)),'g');
     if FullTimingSyncSim
         plot(tResp(:)-Nnoise-1,abs(RespOfFind(5,:)),'k:');
-        legend('Метод Шмидля','Метод Минна','Метод Парка');
+        legend('Метод Минна для Шмидля','Метод Минна','Метод Шмидля','Метод Парка');
     else
-        legend('Метод Шмидля','Метод Минна');
+        legend('Метод Минна для Шмидля','Метод Минна','Метод Шмидля');
     end
-    xlabel('Дискретные отсчеты');ylabel('Временная метрика, ед.');
+    xlabel('Дискретные отсчеты');ylabel('Временная метрика в канале с АГБШ, ед.');
 
 
     figure;hold on;grid on;
     plot(tResp(:)-Nnoise-1,abs(RespOfFind(2,:)),'--');%2.2*N:end-3*N
-    plot(tResp(:)-Nnoise-1,abs(RespOfFind(4,:)),'r');
+%     plot(tResp(:)-Nnoise-1,abs(RespOfFind(4,:)),'r');
+    plot(tResp(:)-Nnoise-1,abs(RespOfFind(8,:)),'g');
     if FullTimingSyncSim
         plot(tResp(:)-Nnoise-1,abs(RespOfFind(6,:)),'k:');
-        legend('Метод Шмидля','Метод Минна','Метод Парка');
+        legend('Метод Минна для Шмидля','Метод Минна','Метод Шмидля','Метод Парка');
     else
-        legend('Метод Шмидля','Метод Минна');
+        legend('Метод Минна для Шмидля','Метод Минна','Метод Шмидля');
     end
-    xlabel('Дискретные отсчеты');ylabel('Временная метрика, ед.');
+    xlabel('Дискретные отсчеты');ylabel('Временная метрика в Рэлеевском канале, ед.');
     drawnow;
 end
+%
+maxAwgnSchOld = 0;
+maxAwgnIndSchOld = 0;
+maxRaySchOld = 0;
+maxRayIndSchOld = 0;
+curMaxOld = 0;
+for j=1:length(tResp)-103
+    curMaxOld = sum(RespOfFind(7,j:j+102));
+    if curMaxOld>maxAwgnSchOld
+        maxAwgnSchOld = curMaxOld;
+        maxAwgnIndSchOld = j;
+    end
+    curMaxOld = sum(RespOfFind(8,j:j+102));
+    if curMaxOld>maxRaySchOld
+        maxRaySchOld = curMaxOld;
+        maxRayIndSchOld = j;
+    end
+end
+%
 maxAwgnSch = 0;
 maxAwgnIndSch = 0;
 maxRaySch = 0;
 maxRayIndSch = 0;
 curMax = 0;
-% for j=1:length(tResp)-103
-%     curMax = sum(RespOfFind(1,j:j+102));
-%     if curMax>maxAwgnSch
-%         maxAwgnSch = curMax;
-%         maxAwgnIndSch = j;
-%     end
-%     curMax = sum(RespOfFind(2,j:j+102));
-%     if curMax>maxRaySch
-%         maxRaySch = curMax;
-%         maxRayIndSch = j;
-%     end
-% end
 maxAwgnIndSch = find(RespOfFind(1,:)==max(RespOfFind(1,:)));
 maxRayIndSch = find(RespOfFind(2,:)==max(RespOfFind(2,:)));
 maxAwgnIndPro = find(RespOfFind(3,:)==max(RespOfFind(3,:)));
 maxRayIndPro = find(RespOfFind(4,:)==max(RespOfFind(4,:)));
 
 if EnableOutput
-    maxAwgnIndSch-Nnoise-1
-    maxRayIndSch-Nnoise-1
-    maxAwgnIndPro-Nnoise-1
-    maxRayIndPro-Nnoise-1
+    fprintf('Time synchronization error Schmidl new %d %d, proposed %d %d, Schmidl old %d %d\n',maxAwgnIndSch-Nnoise-1,maxRayIndSch-Nnoise-1,maxAwgnIndPro-Nnoise-1,...
+        maxRayIndPro-Nnoise-1,maxAwgnIndSchOld-Nnoise-1,maxRayIndSchOld-Nnoise-1);   
 end
 if maxAwgnIndPro-Nnoise-1~=0 || maxRayIndPro-Nnoise-1~=0
-    maxAwgnIndPro
-    maxRayIndPro
+    fprintf('ERROR, Proposed!!!\n ');
+%     maxAwgnIndPro
+%     maxRayIndPro
     ProposedError = 1;
 end
+
 % 
 
 Vk = sqrt(2).*frs2(1:2:end)./frs;%вспомогательная последовательность
+VkOld = sqrt(2).*frs2Old(1:2:end)./frs;
 % figure;plot(abs(seq1));
 t1 = (1:length(AA(1,:)));
 t12 = (1:length(AA_B(1,:)));
@@ -302,8 +351,8 @@ end
 FfineRay = alp/(abs(FkRay(kmax))/abs(FkRay(kmax+alp))+1);
 
 
-% Schmidl
 
+% Schmidl new ___________________________________________________
 seq1df(1,:) = seq1UpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndSch:maxAwgnIndSch+N-1);%Теперь уже все по честному 
 seq12df(1,:) = seq1UpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndSch:maxAwgnIndSch-1+N+N+fix(CP*N));%АГБШ
 
@@ -322,7 +371,6 @@ for i = 1:N/2
     F1F2sh = circshift(F1F2,[0,2*(i-1)]);
     BgAwgn(i) = power(abs(sum(  F1F2sh(1:2:end).*  conj(Vk)      )),2)/2/power(sum(power(abs(F2),2)),2);
 end
-
 P1 = sum(conj(seq1df(2,1:N/2)).*seq1df(2,1+N/2:N));
 phi = angle(P1);
 feRay = phi/pi;
@@ -341,13 +389,53 @@ FdSchmidlAwgn = (1+256-find(BgAwgn==max(BgAwgn)))*2 +feAwgn;% 2*(513-(find(BgAwg
 
 FdProposedRay = FcoarseRay + FfineRay - 1;
 FdSchmidlRay = (1+256-find(BgRay==max(BgRay)))*2 +feRay;%2*(513-(find(BgRay==max(BgRay)))) + feRay
-if abs(FdSchmidlRay-FreqOffset )>0.9
-    ShmidlError = 1;
+if abs(FdSchmidlRay-FreqOffset )>MaxFreqError
+    SchmidlError = 1;
+    fprintf('ERROR, Schmidl New!!!\n');
 end
+%Schmidl old _______________________________________________________
+seq1Olddf(1,:) = seq1OldUpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndSchOld:maxAwgnIndSchOld+N-1);%Теперь уже все по честному 
+seq12Olddf(1,:) = seq1OldUpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndSchOld:maxAwgnIndSchOld-1+N+N+fix(CP*N));%АГБШ
+
+seq1Olddf(2,:) = seq1OldUpFcRayF0Dec500LpfFs1(1,maxRayIndSchOld:maxRayIndSchOld-1+N);%Теперь уже все по честному
+seq12Olddf(2,:) = seq1OldUpFcRayF0Dec500LpfFs1(1,maxRayIndSchOld:maxRayIndSchOld-1+N+N+fix(CP*N));%РЭЛЕЙ
+P1Old = sum(conj(seq1Olddf(1,1:N/2)).*seq1Olddf(1,1+N/2:N));
+phiOld = angle(P1Old);
+feAwgnOld = phiOld/pi;
+CorrOld = exp(-1i*2*phiOld*t12/N);
+seq12OlddfCorr = seq12Olddf(1,:).*CorrOld;
+F1Old = fft(seq12OlddfCorr(1:N));F1Old = [F1Old(N/2+1:end),F1Old(1:N/2)];
+F2Old = fft(seq12OlddfCorr(N+fix(CP*N)+1:end));F2Old = [F2Old(N/2+1:end),F2Old(1:N/2)];
+F1F2Old = conj(F1Old).*F2Old;
+% B(1) = power(abs(sum(F1F2.*conj(frs(1:2:end)))),2)/2/power(sum(power(F2,2)),2);
+for i = 1:N/2
+    F1F2shOld = circshift(F1F2Old,[0,2*(i-1)]);
+    BgAwgnOld(i) = power(abs(sum(  F1F2shOld(1:2:end).*  conj(VkOld)      )),2)/2/power(sum(power(abs(F2Old),2)),2);
+end
+P1Old = sum(conj(seq1Olddf(2,1:N/2)).*seq1Olddf(2,1+N/2:N));
+phiOld = angle(P1Old);
+feRayOld = phiOld/pi;
+CorrOld = exp(-1i*2*phiOld*t12/N);
+seq12OlddfCorr = seq12Olddf(2,:).*CorrOld;
+F1Old = fft(seq12OlddfCorr(1:N));F1Old = [F1Old(N/2+1:end),F1Old(1:N/2)];
+F2Old = fft(seq12OlddfCorr(N+fix(CP*N)+1:end));F2Old = [F2Old(N/2+1:end),F2Old(1:N/2)];
+F1F2Old = conj(F1Old).*F2Old;
+% B(1) = power(abs(sum(F1F2.*conj(frs(1:2:end)))),2)/2/power(sum(power(F2,2)),2);
+for i = 1:N/2
+    F1F2shOld = circshift(F1F2Old,[0,2*(i-1)]);
+    BgRayOld(i) = power(abs(sum(  F1F2shOld(1:2:end).*  conj(VkOld)      )),2)/2/power(sum(power(abs(F2Old),2)),2);
+end
+FdSchmidlAwgnOld = (1+256-find(BgAwgnOld==max(BgAwgnOld)))*2 +feAwgnOld;% 2*(513-(find(BgAwgn==max(BgAwgn)))) + feAwgn
+FdSchmidlRayOld = (1+256-find(BgRayOld==max(BgRayOld)))*2 +feRayOld;%2*(513-(find(BgRay==max(BgRay)))) + feRay
+if abs(FdSchmidlRayOld-FreqOffset )>MaxFreqError
+    SchmidlOldError = 1;
+    fprintf('ERROR, Schmidl Old!!!\n');
+end
+
 if EnableOutput
    fprintf('Error of proposed method is %.5f (awgn), %.5f (rayleygh)\n',FdProposedAwgn-FreqOffset,FdProposedRay-FreqOffset);
-   fprintf('Error of Schmidl method is %.5f (awgn), %.5f (rayleygh)\n',FdSchmidlAwgn-FreqOffset,FdSchmidlRay-FreqOffset);      
-   
+   fprintf('Error of modified Schmidl method is %.5f (awgn), %.5f (rayleygh)\n',FdSchmidlAwgn-FreqOffset,FdSchmidlRay-FreqOffset);      
+   fprintf('Error of Schmidl method is %.5f (awgn), %.5f (rayleygh)\n',FdSchmidlAwgnOld-FreqOffset,FdSchmidlRayOld-FreqOffset);      
 end
 % toc;
 % figure;plot(abs(conj(F1).*F2));
