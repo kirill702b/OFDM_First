@@ -1,13 +1,13 @@
 %»деи: дл€ каналов с малыми замирани€ми может быть лучше!
-% clear all;close all;
-% FreqOffset = 12.4; % Frequency offcet in subcarrier spacing
-% SNR = 3;
-% FreqDop = 27;
+clear all;close all;
+FreqOffset = 11.4; % Frequency offcet in subcarrier spacing
+SNR = 5;
+FreqDop = 27;
 %
 % tic;
-EnableGraphs = 0;
-EnableOutput = 0;
-PartOfB1 = 0.75;
+EnableGraphs = 1;
+EnableOutput = 1;
+PartOfB1 = 0.5;
 ProposedError =0;
 SchmidlError = 0;
 SchmidlOldError = 0;
@@ -38,11 +38,13 @@ FullTimingSyncSim = 0;%Enable simulation of second method of timing synchronizat
 frs = (randi(2,[1 N/2])-1.5)*2;%mseq(2,log2(N/2)); последовательность +-1
 frs3 = (randi(2,[1 N])-1.5)*2;% втора€ последовательность
 frs2Old = (randi(2,[1 N])-1.5)*2;
+frsSh = zeros(1,N);
+frsSh(1:2:end) = frs;
 A = ifft(frs,N/2);%A -последовательность длины N/2
-B1 = ifft(frs3,N);% последовательность длины N
+B1 = ifft(frsSh,N);% последовательность длины N
 AA = [A(1:N/2),A(1:N/2)];% последовательность длины N
 % B = [conj(A(end:-1:1)), B1(1:N/2)];
-B = [conj(AA(end:-1:1+fix(N*PartOfB1))), B1(1:fix(N*PartOfB1))];
+B = [conj(AA(end:-1:1+fix(N*PartOfB1))), 2*B1(1:fix(N*PartOfB1))];
 BOld = ifft(frs2Old,N);
 frs2 = fft(B,N);
 AA_B = [AA, zeros(1,fix(CP*N)),B]; %две последовательности длины 2048+102=2150
@@ -427,6 +429,8 @@ seq12dfCorr = seq12df(1,:).*Corr;
 F1 = fft(seq12dfCorr(1:N));F1 = [F1(N/2+1:end),F1(1:N/2)];
 F2 = fft(seq12dfCorr(N+fix(CP*N)+1:end));F2 = [F2(N/2+1:end),F2(1:N/2)];
 F1F2 = conj(F1).*F2;
+% F1F2 = [F1F2(2:end), F1F2(1)];
+% F1F2 = [ F1F2(end),F1F2(1:end-1)];
 % B(1) = power(abs(sum(F1F2.*conj(frs(1:2:end)))),2)/2/power(sum(power(F2,2)),2);
 for i = 1:N/2
     F1F2sh = circshift(F1F2,[0,2*(i-1)]);
@@ -440,6 +444,7 @@ seq12dfCorr = seq12df(2,:).*Corr;
 F1 = fft(seq12dfCorr(1:N));F1 = [F1(N/2+1:end),F1(1:N/2)];
 F2 = fft(seq12dfCorr(N+fix(CP*N)+1:end));F2 = [F2(N/2+1:end),F2(1:N/2)];
 F1F2 = conj(F1).*F2;
+% F1F2 = [F1F2(2:end), F1F2(1)];
 % B(1) = power(abs(sum(F1F2.*conj(frs(1:2:end)))),2)/2/power(sum(power(F2,2)),2);
 for i = 1:N/2
     F1F2sh = circshift(F1F2,[0,2*(i-1)]);
@@ -462,7 +467,7 @@ seq1Olddf(2,:) = seq1OldUpFcRayF0Dec500LpfFs1(1,maxRayIndSchOld:maxRayIndSchOld-
 seq12Olddf(2,:) = seq1OldUpFcRayF0Dec500LpfFs1(1,maxRayIndSchOld:maxRayIndSchOld-1+N+N+fix(CP*N));%–ЁЋ≈…
 P1Old = sum(conj(seq1Olddf(1,1:N/2)).*seq1Olddf(1,1+N/2:N));
 phiOld = angle(P1Old);
-feAwgnOld = phiOld/pi;
+feAwgnOld = phiOld/pi
 CorrOld = exp(-1i*2*phiOld*t12/N);
 seq12OlddfCorr = seq12Olddf(1,:).*CorrOld;
 F1Old = fft(seq12OlddfCorr(1:N));F1Old = [F1Old(N/2+1:end),F1Old(1:N/2)];
@@ -475,7 +480,7 @@ for i = 1:N/2
 end
 P1Old = sum(conj(seq1Olddf(2,1:N/2)).*seq1Olddf(2,1+N/2:N));
 phiOld = angle(P1Old);
-feRayOld = phiOld/pi;
+feRayOld = phiOld/pi
 CorrOld = exp(-1i*2*phiOld*t12/N);
 seq12OlddfCorr = seq12Olddf(2,:).*CorrOld;
 F1Old = fft(seq12OlddfCorr(1:N));F1Old = [F1Old(N/2+1:end),F1Old(1:N/2)];
