@@ -1,21 +1,18 @@
-%Идеи: 1) не работает для начала потому, что frs2 не используется для
-%составления последовательности B, но используется в поиске, заменить
-%а потом возможно, это нельзя просто потому что А особенная
-%последовательность у которой - что-то типа только четные.
-%поэтому можно взять половину B = A(end:-1:1), вторая половина случайная
+%Идеи: для каналов с малыми замираниями может быть лучше!
 % clear all;close all;
-FreqOffset = 12.4; % Frequency offcet in subcarrier spacing
-SNR = -6;
+% FreqOffset = 12.4; % Frequency offcet in subcarrier spacing
+% SNR = 3;
+% FreqDop = 27;
 %
 % tic;
 EnableGraphs = 0;
-EnableOutput = 1;
-PartOfB1 = 0.5;
+EnableOutput = 0;
+PartOfB1 = 0.75;
 ProposedError =0;
 SchmidlError = 0;
 SchmidlOldError = 0;
 MaxFreqError = 0.25;
-FreqDop = 277;
+
 Nc = 1000; % Number of subcarriers
 N = 1024; % Number of IFFT points
 Rd = 18e6; % Data rate bit per second
@@ -23,7 +20,7 @@ CP = 0.1; % Cyclic prefix length as part of symbol period
 Fs1 =(Rd/(1-CP));%20mHz, 50ns
 % 
 NumOfOsc = 16; % Number of Oscillator for Jakes' model
-Fc = 2e9; % Hz, Carrier frequency 2GHz
+Fc = 2e8; % Hz, Carrier frequency 2GHz
 OsFac = 10; %oversampling factor
 Fs = Fc*OsFac; %sampling frequency Fs = 20GHz
 VehSpeed = 150; % kmph, Speed of vehicle
@@ -45,7 +42,7 @@ A = ifft(frs,N/2);%A -последовательность длины N/2
 B1 = ifft(frs3,N);% последовательность длины N
 AA = [A(1:N/2),A(1:N/2)];% последовательность длины N
 % B = [conj(A(end:-1:1)), B1(1:N/2)];
-B = [conj(A(end:-1:1)),conj(A(end:-1:1+fix(N*PartOfB1))), B1(1:fix(N*PartOfB1))];
+B = [conj(AA(end:-1:1+fix(N*PartOfB1))), B1(1:fix(N*PartOfB1))];
 BOld = ifft(frs2Old,N);
 frs2 = fft(B,N);
 AA_B = [AA, zeros(1,fix(CP*N)),B]; %две последовательности длины 2048+102=2150
@@ -99,12 +96,12 @@ if ~exist('RayCh1')
     RayCh1.ResetBeforeFiltering = 1;
 end
 % RayCh1.
+
 seq1UpFcAwgn = awgn(seq1UpFc,SNR);%,'measured');%сигнал после АГБШ канала
 seq1UpFcRay = awgn(filter(RayCh1,seq1UpFc),SNR);%,'measured');
 
 seq1OldUpFcAwgn = awgn(seq1OldUpFc,SNR);%,'measured');%сигнал после АГБШ канала
 seq1OldUpFcRay = awgn(filter(RayCh1,seq1OldUpFc),SNR);%,'measured');
-
 
 seq3UpFcAwgn = awgn(seq3UpFc,SNR,'measured');%сигнал после АГБШ канала
 seq3UpFcRay = awgn(filter(RayCh1,seq3UpFc),SNR,'measured');
@@ -133,12 +130,37 @@ end
 % [pw,f]=pwelch(seq1UpFcRayF0,[],[],nfft,Fs);% спектр сигнала 
 % plot(f,10*log10(pw),'r');grid on;%рисуем
 
-seq1UpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq1UpFcAwgnF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
-seq1UpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq1UpFcRayF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
-seq1OldUpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq1OldUpFcAwgnF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
-seq1OldUpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq1OldUpFcRayF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+Dec = Fs/Fs1;
+if Dec-fix(Dec)~=0
+    display('Decimation factor is not integer!!! Exit.');
+    return;
+end
+Decs = sort(factor(Dec),'descend');
 
 
+seq1UpFcAwgnF0Dec500 = decimate(seq1UpFcAwgnF0,Decs(1),64,'fir');% децимация в 500раз (всего было 1000)
+seq1UpFcRayF0Dec500 = decimate(seq1UpFcRayF0,Decs(1),64,'fir');% децимация в 500раз (всего было 1000)
+seq1OldUpFcAwgnF0Dec500 = decimate(seq1OldUpFcAwgnF0,Decs(1),64,'fir');% децимация в 500раз (всего было 1000)
+seq1OldUpFcRayF0Dec500 = decimate(seq1OldUpFcRayF0,Decs(1),64,'fir');% децимация в 500раз (всего было 1000)
+seq3UpFcAwgnF0Dec500 = decimate(seq3UpFcAwgnF0,Decs(1),64,'fir');% децимация в 500раз (всего было 1000)
+seq3UpFcRayF0Dec500 = decimate(seq3UpFcRayF0,Decs(1),64,'fir');% децимация в 500раз (всего было 1000)
+for j=2:length(Decs)-1
+    seq1UpFcAwgnF0Dec500 = decimate(seq1UpFcAwgnF0Dec500,Decs(j),64,'fir');% децимация в 500раз (всего было 1000)
+    seq1UpFcRayF0Dec500 = decimate(seq1UpFcRayF0Dec500,Decs(j),64,'fir');% децимация в 500раз (всего было 1000)
+    seq1OldUpFcAwgnF0Dec500 = decimate(seq1OldUpFcAwgnF0Dec500,Decs(j),64,'fir');% децимация в 500раз (всего было 1000)
+    seq1OldUpFcRayF0Dec500 = decimate(seq1OldUpFcRayF0Dec500,Decs(j),64,'fir');% децимация в 500раз (всего было 1000)
+    seq3UpFcAwgnF0Dec500 = decimate(seq3UpFcAwgnF0Dec500,Decs(j),64,'fir');% децимация в 500раз (всего было 1000)
+    seq3UpFcRayF0Dec500 = decimate(seq3UpFcRayF0Dec500,Decs(j),64,'fir');% децимация в 500раз (всего было 1000)
+end
+% seq1UpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq1UpFcAwgnF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+% seq1UpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq1UpFcRayF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+% seq1OldUpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq1OldUpFcAwgnF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+% seq1OldUpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq1OldUpFcRayF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+
+if (Decs(end)~=2)
+    display('Last decimation factor is not 2!!! Exit.');
+    return;
+end
 seq1UpFcAwgnF0Dec500Lpf=seq1UpFcAwgnF0Dec500;%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcAwgnF0Dec500);%фильтрация для итоговой децимации
 seq1UpFcRayF0Dec500Lpf = seq1UpFcRayF0Dec500;%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcRayF0Dec500);% фильтрация для итоговой децимации
 seq1OldUpFcAwgnF0Dec500Lpf=seq1OldUpFcAwgnF0Dec500;%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcAwgnF0Dec500);%фильтрация для итоговой децимации
@@ -149,8 +171,8 @@ seq1UpFcRayF0Dec500LpfFs1 = decimate(seq1UpFcRayF0Dec500Lpf,2,128,'fir'); % итог
 seq1OldUpFcAwgnF0Dec500LpfFs1 = decimate(seq1OldUpFcAwgnF0Dec500Lpf,2,128,'fir'); % итоговая децимация в 2раза, до изначальной частоты
 seq1OldUpFcRayF0Dec500LpfFs1 = decimate(seq1OldUpFcRayF0Dec500Lpf,2,128,'fir'); % итоговая децимация в 2раза, до изначальной частоты
 
-seq3UpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq3UpFcAwgnF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
-seq3UpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq3UpFcRayF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+% seq3UpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq3UpFcAwgnF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+% seq3UpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq3UpFcRayF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
 seq3UpFcAwgnF0Dec500Lpf=seq3UpFcAwgnF0Dec500;%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcAwgnF0Dec500);%фильтрация для итоговой децимации
 seq3UpFcRayF0Dec500Lpf = seq3UpFcRayF0Dec500;%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcRayF0Dec500);% фильтрация для итоговой децимации
 seq3UpFcAwgnF0Dec500LpfFs1 = decimate(seq3UpFcAwgnF0Dec500Lpf,2,128,'fir'); % итоговая децимация в 2раза, до изначальной частоты
@@ -162,24 +184,48 @@ seq3UpFcRayF0Dec500LpfFs1 = decimate(seq3UpFcRayF0Dec500Lpf,2,128,'fir'); % итог
 % 3 - Park AWGN, 4 - Park Rayleygh
 % 5 - Minn AWGN, 6 - Minn Rayleygh
 % 7 - Schmild old AWGN, 8 - Schmidl old Rayleygh
+
+
 for j=N+1+fix(CP*N)/2:N+2*Nnoise
-    P1 = 0;R1 = 0;
-    for k = 0:N/2-1
-        P1 = P1 + seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1+fix(CP*N)/2)*seq1UpFcAwgnF0Dec500LpfFs1(1,j-k-fix(CP*N)/2);
-        R1 = R1 + power(abs(seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1+fix(CP*N)/2)),2);
-%         abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);
-    end  
-    RespOfFind(1,j-N/2-N/2-fix(CP*N)/2) = power(abs(P1),2)/power(R1,2);
+    P1 = sum(seq1UpFcAwgnF0Dec500LpfFs1(1,j+1-1+fix(CP*N)/2:j+N*(1-PartOfB1)-1+fix(CP*N)/2).*...
+        seq1UpFcAwgnF0Dec500LpfFs1(1,j-1-fix(CP*N)/2:-1:j-N*(1-PartOfB1)-fix(CP*N)/2));
+    P2 = sum(conj(seq1UpFcAwgnF0Dec500LpfFs1(1,j-(N+fix(CP*N)/2):j+N/2-1-(N+fix(CP*N)/2))).*seq1UpFcAwgnF0Dec500LpfFs1(1,j+N/2-(N+fix(CP*N)/2):j+N/2-1+N/2-(N+fix(CP*N)/2)));% sum(conj(seq1UpFcAwgnF0Dec500LpfFs1(1,j-fix(CP*N)/2-N/2:j-fix(CP*N)/2-1)).*seq1UpFcAwgnF0Dec500LpfFs1(1,j-fix(CP*N)/2-N:j-fix(CP*N)/2-1-N/2));
+    R1 = sum(power(abs(seq1UpFcAwgnF0Dec500LpfFs1(1,j+1-1+fix(CP*N)/2:j+N*(1-PartOfB1)-1+fix(CP*N)/2)),2));
+    R2 =  sum(power(abs(seq1UpFcAwgnF0Dec500LpfFs1(1,j+N/2-(N+fix(CP*N)/2):j+N/2-1+N/2-(N+fix(CP*N)/2))),2));% sum(power(abs(seq1UpFcAwgnF0Dec500LpfFs1(1,j-fix(CP*N)/2-N:j-fix(CP*N)/2-1-N/2)),2));
+    RespOfFind(1,j-N/2-N/2-fix(CP*N)/2) = power(abs(P1),2)/power(R1,2) + power(abs(P2),2)/power(R2,2);
+%     RespOfFind(1,j-N/2-N/2-fix(CP*N)/2) =  power(abs(P2),2)/power(R2,2);
 end
 for j=N+1+fix(CP*N)/2:N+2*Nnoise
-    P1 = 0;R1 = 0;
-    for k = 0:N/2-1
-        P1 = P1 + seq1UpFcRayF0Dec500LpfFs1(1,j+k-1+fix(CP*N)/2)*seq1UpFcRayF0Dec500LpfFs1(1,j-k-fix(CP*N)/2);
-        R1 = R1 + power(abs(seq1UpFcRayF0Dec500LpfFs1(1,j+k-1+fix(CP*N)/2)),2);
-%         abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);
-    end  
-    RespOfFind(2,j-N/2-N/2-fix(CP*N)/2) = power(abs(P1),2)/power(R1,2);
+    P1 = sum(seq1UpFcRayF0Dec500LpfFs1(1,j+1-1+fix(CP*N)/2:j+N*(1-PartOfB1)-1+fix(CP*N)/2).*...
+        seq1UpFcRayF0Dec500LpfFs1(1,j-1-fix(CP*N)/2:-1:j-N*(1-PartOfB1)-fix(CP*N)/2)) ;
+        P2=sum(conj(seq1UpFcRayF0Dec500LpfFs1(1,j-(N+fix(CP*N)/2):j+N/2-1-(N+fix(CP*N)/2))).*seq1UpFcRayF0Dec500LpfFs1(1,j+N/2-(N+fix(CP*N)/2):j+N/2-1+N/2-(N+fix(CP*N)/2)));
+    R1 = sum(power(abs(seq1UpFcRayF0Dec500LpfFs1(1,j+1-1+fix(CP*N)/2:j+N*(1-PartOfB1)-1+fix(CP*N)/2)),2));
+        R2=sum(power(abs(seq1UpFcRayF0Dec500LpfFs1(1,j+N/2-(N+fix(CP*N)/2):j+N/2-1+N/2-(N+fix(CP*N)/2))),2));
+    RespOfFind(2,j-N/2-N/2-fix(CP*N)/2) =power(abs(P1),2)/power(R1,2) + power(abs(P2),2)/power(R2,2);
+%     RespOfFind(2,j-N/2-N/2-fix(CP*N)/2) = power(abs(P2),2)/power(R2,2);
 end
+
+% 
+% for j=N+1+fix(CP*N)/2:N+2*Nnoise
+%     P1 = 0;R1 = 0;
+%     for k = 1:N*(1-PartOfB1)
+%         P1 = P1 + seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1+fix(CP*N)/2)*seq1UpFcAwgnF0Dec500LpfFs1(1,j-k-fix(CP*N)/2) ;
+%         R1 = R1 + power(abs(seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1+fix(CP*N)/2)),2);
+% %         R1 = R1 + abs(seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1+fix(CP*N)/2)*seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1+fix(CP*N)/2));
+% %         abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);
+%     end  
+%     RespOfFind(1,j-N/2-N/2-fix(CP*N)/2) = power(abs(P1),2)/power(R1,2);
+% end
+% for j=N+1+fix(CP*N)/2:N+2*Nnoise
+%     P1 = 0;R1 = 0;
+%     for k = 1:N*(1-PartOfB1)
+%         P1 = P1 + seq1UpFcRayF0Dec500LpfFs1(1,j+k-1+fix(CP*N)/2)*seq1UpFcRayF0Dec500LpfFs1(1,j-k-fix(CP*N)/2);
+%         R1 = R1 + power(abs(seq1UpFcRayF0Dec500LpfFs1(1,j+k-1+fix(CP*N)/2)),2);
+% %         R1 = R1 + abs(seq1UpFcRayF0Dec500LpfFs1(1,j+k-1+fix(CP*N)/2)*seq1UpFcRayF0Dec500LpfFs1(1,j+k-1+fix(CP*N)/2));
+% %         abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);
+%     end  
+%     RespOfFind(2,j-N/2-N/2-fix(CP*N)/2) = power(abs(P1),2)/power(R1,2);
+% end
 
 for j=N/2+1:N/2+2*Nnoise
     P1 = 0;R1 = 0;
@@ -199,16 +245,27 @@ for j=N/2+1:N/2+2*Nnoise
     end  
     RespOfFind(4,j-N/2) = power(abs(P1),2)/power(R1,2);
 end
+%THE SAME SEQUENCE FOR SYNCHRO BOTH SCHMIDL!!!
 for j=1:2*Nnoise %???? ?????? (?????????????) ??? ???? ??????
-    P1 = sum(conj(seq1OldUpFcAwgnF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1OldUpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));
-    R1 = sum(power(abs(seq1OldUpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));
+    P1 = sum(conj(seq1UpFcAwgnF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1UpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));
+    R1 = sum(power(abs(seq1UpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));
     RespOfFind(7,j) = power(abs(P1),2)/power(R1,2); % ?????? ?? ?????
 end
 for j=1:2*Nnoise %???? ?????? (?????????????) ??? ???? ??????
-    P1 = sum(conj(seq1OldUpFcRayF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1OldUpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));
-    R1 = sum(power(abs(seq1OldUpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));
+    P1 = sum(conj(seq1UpFcRayF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1UpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));
+    R1 = sum(power(abs(seq1UpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));
     RespOfFind(8,j) = power(abs(P1),2)/power(R1,2); % ?????? ?? ?????
 end
+% for j=1:2*Nnoise %???? ?????? (?????????????) ??? ???? ??????
+%     P1 = sum(conj(seq1OldUpFcAwgnF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1OldUpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));
+%     R1 = sum(power(abs(seq1OldUpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));
+%     RespOfFind(7,j) = power(abs(P1),2)/power(R1,2); % ?????? ?? ?????
+% end
+% for j=1:2*Nnoise %???? ?????? (?????????????) ??? ???? ??????
+%     P1 = sum(conj(seq1OldUpFcRayF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1OldUpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));
+%     R1 = sum(power(abs(seq1OldUpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));
+%     RespOfFind(8,j) = power(abs(P1),2)/power(R1,2); % ?????? ?? ?????
+% end
 
 
 if FullTimingSyncSim
@@ -238,6 +295,7 @@ if FullTimingSyncSim
 end
 tResp = 1:length(RespOfFind);
  close all;
+ 
 if EnableGraphs
     figure;hold on;grid on;%рисуем отклики во времени
     plot(tResp(:)-Nnoise-1,abs(RespOfFind(1,:)),'--');%2.2*N:end-3*N
@@ -316,7 +374,7 @@ t12 = (1:length(AA_B(1,:)));
 % seq1df(1,:) = seq1(1,3*N+1:3*N+N).*exp(1i*(2*pi*FreqOffset*t1/N));%Сначала брал только неискаженную последовательность, сдвинутую
 % seq12df(1,:) = seq1(1,3*N+1:3*N+N+N+fix(CP*N)).*exp(1i*(2*pi*FreqOffset*t12/N));
 
-%%
+%% Proposed
 seq1df(1,:) = seq1UpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndPro:maxAwgnIndPro+N-1);%Теперь уже все по честному 
 seq12df(1,:) = seq1UpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndPro:maxAwgnIndPro-1+N+N+fix(CP*N));%АГБШ
 
@@ -329,13 +387,14 @@ FkAwgn = fft(conj(AA).*seq12df(1,1:N),N);
 FkAwgn = [FkAwgn(N/2+1:end),FkAwgn(1:N/2)];
 kmax =  find(abs(FkAwgn)==max(abs(FkAwgn)));
 FcoarseAwgn = kmax-N/2;
-if abs(FkAwgn(kmax-1))<= abs(FkAwgn(kmax+1))
-    alp = 1;
-else
-    alp = -1;
+if kmax>=2
+    if abs(FkAwgn(kmax-1))<= abs(FkAwgn(kmax+1))
+        alp = 1;
+    else
+        alp = -1;
+    end
+    FfineAwgn = alp/(abs(FkAwgn(kmax))/abs(FkAwgn(kmax+alp))+1);
 end
-FfineAwgn = alp/(abs(FkAwgn(kmax))/abs(FkAwgn(kmax+alp))+1);
-
 
 % FkRay = fft(conj(AA).*seq1df(2,:),N);
 % FkRay = fft(conj(B).*seq12df(2,N+fix(CP*N)+1:N+fix(CP*N)+N),N);
@@ -343,12 +402,14 @@ FkRay = fft(conj(AA).*seq12df(2,1:N),N);
 FkRay = [FkRay(N/2+1:end),FkRay(1:N/2)];
 kmax =  find(abs(FkRay)==max(abs(FkRay)));
 FcoarseRay = kmax-N/2;
-if abs(FkRay(kmax-1))<= abs(FkRay(kmax+1))
-    alp = 1;
-else
-    alp = -1;
-end
-FfineRay = alp/(abs(FkRay(kmax))/abs(FkRay(kmax+alp))+1);
+if kmax>=2
+    if abs(FkRay(kmax-1))<= abs(FkRay(kmax+1))
+        alp = 1;
+    else
+        alp = -1;
+    end
+    FfineRay = alp/(abs(FkRay(kmax))/abs(FkRay(kmax+alp))+1);
+end    
 
 
 
@@ -449,5 +510,4 @@ end
 % figure;plot(abs(RespOfFind));
 %%
 % figure;plot(Bg);
-
-
+% toc;
