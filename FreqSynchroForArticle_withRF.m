@@ -7,11 +7,11 @@
 % tic;
 EnableGraphs = 0;
 EnableOutput = 0;
-PartOfB1 = 0.75;
+PartOfB1 = 0.5;
 ProposedError =0;
 SchmidlError = 0;
 SchmidlOldError = 0;
-MaxFreqError = 0.25;
+MaxFreqError = 0.5;
 
 Nc = 1000; % Number of subcarriers
 N = 1024; % Number of IFFT points
@@ -39,10 +39,12 @@ frs = (randi(2,[1 N/2])-1.5)*2;%mseq(2,log2(N/2)); последовательность +-1
 frs3 = (randi(2,[1 N])-1.5)*2;% вторая последовательность
 frs2Old = (randi(2,[1 N])-1.5)*2;
 A = ifft(frs,N/2);%A -последовательность длины N/2
+frs3(1:2:end) = zeros(1,N/2);
+%frs3(1:(N-Nc)/2) = zeros(1,(N-Nc)/2);frs3(end:-1:end-(N-Nc)/2+1) = zeros(1,(N-Nc)/2);
 B1 = ifft(frs3,N);% последовательность длины N
 AA = [A(1:N/2),A(1:N/2)];% последовательность длины N
 % B = [conj(A(end:-1:1)), B1(1:N/2)];
-B = [conj(AA(end:-1:1+fix(N*PartOfB1))), B1(1:fix(N*PartOfB1))];
+B = [conj(AA(end:-1:1+fix(N*PartOfB1))), B1(1:fix(N*PartOfB1))/PartOfB1];%
 BOld = ifft(frs2Old,N);
 frs2 = fft(B,N);
 AA_B = [AA, zeros(1,fix(CP*N)),B]; %две последовательности длины 2048+102=2150
@@ -52,8 +54,8 @@ seq1Old = [zeros(1,Nnoise),real(AA_BOld),zeros(1,Nnoise)]+1i* [zeros(1,Nnoise),i
 %seq1 - это для метода шмидля
 %seq2 - это для метода proposed
 
-frs3 = (randi(2,[1 N/4])-1.5)*2;
-C = ifft(frs3,N/4);
+frs4 = (randi(2,[1 N/4])-1.5)*2;
+C = ifft(frs4,N/4);
 CCmCmC = [C,C,-C,-C];
 CCmCmC_B = [CCmCmC, zeros(1,fix(CP*N)),B];
 seq2 = [zeros(1,Nnoise),real(CCmCmC),zeros(1,Nnoise)]+1i* [zeros(1,Nnoise),imag(CCmCmC),zeros(1,Nnoise)];
@@ -192,7 +194,7 @@ for j=N+1+fix(CP*N)/2:N+2*Nnoise
     P2 = sum(conj(seq1UpFcAwgnF0Dec500LpfFs1(1,j-(N+fix(CP*N)/2):j+N/2-1-(N+fix(CP*N)/2))).*seq1UpFcAwgnF0Dec500LpfFs1(1,j+N/2-(N+fix(CP*N)/2):j+N/2-1+N/2-(N+fix(CP*N)/2)));% sum(conj(seq1UpFcAwgnF0Dec500LpfFs1(1,j-fix(CP*N)/2-N/2:j-fix(CP*N)/2-1)).*seq1UpFcAwgnF0Dec500LpfFs1(1,j-fix(CP*N)/2-N:j-fix(CP*N)/2-1-N/2));
     R1 = sum(power(abs(seq1UpFcAwgnF0Dec500LpfFs1(1,j+1-1+fix(CP*N)/2:j+N*(1-PartOfB1)-1+fix(CP*N)/2)),2));
     R2 =  sum(power(abs(seq1UpFcAwgnF0Dec500LpfFs1(1,j+N/2-(N+fix(CP*N)/2):j+N/2-1+N/2-(N+fix(CP*N)/2))),2));% sum(power(abs(seq1UpFcAwgnF0Dec500LpfFs1(1,j-fix(CP*N)/2-N:j-fix(CP*N)/2-1-N/2)),2));
-    RespOfFind(1,j-N/2-N/2-fix(CP*N)/2) = power(abs(P1),2)/power(R1,2) + power(abs(P2),2)/power(R2,2);
+    RespOfFind(1,j-N/2-N/2-fix(CP*N)/2) = (power(abs(P1),2)/power(R1,2) + power(abs(P2),2)/power(R2,2))/2;
 %     RespOfFind(1,j-N/2-N/2-fix(CP*N)/2) =  power(abs(P2),2)/power(R2,2);
 end
 for j=N+1+fix(CP*N)/2:N+2*Nnoise
@@ -201,7 +203,7 @@ for j=N+1+fix(CP*N)/2:N+2*Nnoise
         P2=sum(conj(seq1UpFcRayF0Dec500LpfFs1(1,j-(N+fix(CP*N)/2):j+N/2-1-(N+fix(CP*N)/2))).*seq1UpFcRayF0Dec500LpfFs1(1,j+N/2-(N+fix(CP*N)/2):j+N/2-1+N/2-(N+fix(CP*N)/2)));
     R1 = sum(power(abs(seq1UpFcRayF0Dec500LpfFs1(1,j+1-1+fix(CP*N)/2:j+N*(1-PartOfB1)-1+fix(CP*N)/2)),2));
         R2=sum(power(abs(seq1UpFcRayF0Dec500LpfFs1(1,j+N/2-(N+fix(CP*N)/2):j+N/2-1+N/2-(N+fix(CP*N)/2))),2));
-    RespOfFind(2,j-N/2-N/2-fix(CP*N)/2) =power(abs(P1),2)/power(R1,2) + power(abs(P2),2)/power(R2,2);
+    RespOfFind(2,j-N/2-N/2-fix(CP*N)/2) =(power(abs(P1),2)/power(R1,2) + power(abs(P2),2)/power(R2,2))/2;
 %     RespOfFind(2,j-N/2-N/2-fix(CP*N)/2) = power(abs(P2),2)/power(R2,2);
 end
 
@@ -365,8 +367,10 @@ end
 
 % 
 
-Vk = sqrt(2).*frs2(1:2:end)./frs;%вспомогательная последовательность
-VkOld = sqrt(2).*frs2Old(1:2:end)./frs;
+% Vk = sqrt(2).*frs2(1:2:end)./frs;%вспомогательная последовательность
+% VkOld = sqrt(2).*frs2Old(1:2:end)./frs;
+Vk = frs2(2:2:end)./frs;%вспомогательная последовательность
+VkOld = frs2Old(1:2:end)./frs;
 % figure;plot(abs(seq1));
 t1 = (1:length(AA(1,:)));
 t12 = (1:length(AA_B(1,:)));
@@ -426,7 +430,7 @@ Corr = exp(-1i*2*phi*t12/N);
 seq12dfCorr = seq12df(1,:).*Corr;
 F1 = fft(seq12dfCorr(1:N));F1 = [F1(N/2+1:end),F1(1:N/2)];
 F2 = fft(seq12dfCorr(N+fix(CP*N)+1:end));F2 = [F2(N/2+1:end),F2(1:N/2)];
-F1F2 = conj(F1).*F2;
+F1F2 = conj(F1).*[ F2(2:end),F2(1) ];
 % B(1) = power(abs(sum(F1F2.*conj(frs(1:2:end)))),2)/2/power(sum(power(F2,2)),2);
 for i = 1:N/2
     F1F2sh = circshift(F1F2,[0,2*(i-1)]);
@@ -439,7 +443,7 @@ Corr = exp(-1i*2*phi*t12/N);
 seq12dfCorr = seq12df(2,:).*Corr;
 F1 = fft(seq12dfCorr(1:N));F1 = [F1(N/2+1:end),F1(1:N/2)];
 F2 = fft(seq12dfCorr(N+fix(CP*N)+1:end));F2 = [F2(N/2+1:end),F2(1:N/2)];
-F1F2 = conj(F1).*F2;
+F1F2 = conj(F1).*[ F2(2:end),F2(1) ];;
 % B(1) = power(abs(sum(F1F2.*conj(frs(1:2:end)))),2)/2/power(sum(power(F2,2)),2);
 for i = 1:N/2
     F1F2sh = circshift(F1F2,[0,2*(i-1)]);

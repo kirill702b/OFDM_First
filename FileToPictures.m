@@ -1,5 +1,5 @@
 clear; close all;
-load('file_SNR_0_20_Ntests_250_Fdop_10Hz.mat');
+load('file_SNR_0_10_Ntests_250_Fdop_10Hz.mat');
 ThreshErr = 0.5;
 
 % FdSchmidlAll_awgn_mean =mean(FdSchmidlAll_awgn,3);
