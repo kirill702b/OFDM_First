@@ -1,10 +1,10 @@
 clear all; close all;
 FreqDop = 10;
-Ntests=250;
+Ntests=1000;
 SNR_n = 0;
 FreqOffset_n = 0;
-SNRs = 0:5:10;% 10.^((0:3:25)/10);
-Freqs = 10.2;% 1.1:0.3:2.3;
+SNRs = 0:3:36;% 10.^((0:3:25)/10);
+Freqs = 12.4;% 1.1:0.3:2.3;
 FdSchmidlAll_awgn = zeros(length(SNRs),length(Freqs),Ntests);
 FdProposedAll_awgn = zeros(length(SNRs),length(Freqs),Ntests);
 FdSchmidlAll_ray = zeros(length(SNRs),length(Freqs),Ntests);

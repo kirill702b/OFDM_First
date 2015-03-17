@@ -1,6 +1,6 @@
 clear; close all;
-load('file_SNR_0_10_Ntests_250_Fdop_10Hz.mat');
-ThreshErr = 0.5;
+load('file_SNR_0_36_Ntests_1000_Fdop_10Hz.mat');
+ThreshErr = 1025;%0.5;
 
 % FdSchmidlAll_awgn_mean =mean(FdSchmidlAll_awgn,3);
 % FdProposedAll_awgn_mean = mean(FdProposedAll_awgn,3);
@@ -36,14 +36,14 @@ for i=1:length(SNRs)
     ind1 = find(abs(FdSchmidlAll_awgnSnr(i,:)-Freqs)<ThreshErr);
     FdSchmidlAll_awgnSnr1(i) = sqrt(mean(power((FdSchmidlAll_awgnSnr(i,ind1)-Freqs),2)));
     ErRateSchmidlAll_awgnSnr1(i) = (Ntests- length(ind1))/Ntests;
-    ind1 = find(abs(FdSchmidlAll_raySnr(i,:)-Freqs)<ThreshErr);
+    ind1 = find(abs(FdSchmidlAll_raySnr(i,:)-Freqs)<100);
     FdSchmidlAll_raySnr1(i) = sqrt(mean(power((FdSchmidlAll_raySnr(i,ind1)-Freqs),2)));
     ErRateSchmidlAll_raySnr1(i) = (Ntests- length(ind1))/Ntests;
     
     ind1 = find(abs(FdProposedAll_awgnSnr(i,:)-Freqs)<ThreshErr);
     FdProposedAll_awgnSnr1(i) = sqrt(mean(power((FdProposedAll_awgnSnr(i,ind1)-Freqs),2)));
     ErRateProposedAll_awgnSnr1(i) = (Ntests- length(ind1))/Ntests;
-    ind1 = find(abs(FdProposedAll_raySnr(i,:)-Freqs)<ThreshErr);
+    ind1 = find(abs(FdProposedAll_raySnr(i,:)-Freqs)<100);
     FdProposedAll_raySnr1(i) = sqrt(mean(power((FdProposedAll_raySnr(i,ind1)-Freqs),2)));
     ErRateProposedAll_raySnr1(i) = (Ntests- length(ind1))/Ntests;
     
@@ -69,38 +69,42 @@ figure(1);
 % plot(SNRs,FdSchmidlAll_awgnSnr1);
 % plot(SNRs,FdProposedAll_awgnSnr1,'r');
 semilogy(SNRs,FdSchmidlAll_awgnSnr1);hold on;grid on;
+
 semilogy(SNRs,FdProposedAll_awgnSnr1,'r');
 semilogy(SNRs,FdSchmidlOldAll_awgnSnr1,'g');
 legend('Модифицированный Шмидля','Предложенный','Исходный Шмидля');
+% legend('Предложенный','Исходный Шмидля');
 xlabel('ОСШ, дБ');ylabel('СКО от истинного значения по частоте в межканальных интервалах');
 
 figure(2);
 % plot(SNRs,FdSchmidlAll_raySnr1);
 % plot(SNRs,FdProposedAll_raySnr1,'r');
 semilogy(SNRs,FdSchmidlAll_raySnr1);hold on;grid on;
+
 semilogy(SNRs,FdProposedAll_raySnr1,'r');
 semilogy(SNRs,FdSchmidlOldAll_raySnr1,'g');
+% legend('Предложенный','Исходный Шмидля');
 legend('Модифицированный Шмидля','Предложенный','Исходный Шмидля');
 xlabel('ОСШ, дБ');ylabel('СКО от истинного значения по частоте в межканальных интервалах');
 
-figure(3);
-% plot(SNRs,FdSchmidlAll_awgnSnr1);
-% plot(SNRs,FdProposedAll_awgnSnr1,'r');
-semilogy(SNRs,ErRateSchmidlAll_awgnSnr1);hold on;grid on;
-semilogy(SNRs,ErRateProposedAll_awgnSnr1,'r');
-semilogy(SNRs,ErRateSchmidlOldAll_awgnSnr1,'g');
-legend('Модифицированный Шмидля','Предложенный','Исходный Шмидля');
-xlabel('ОСШ, дБ');ylabel('Оценка вероятности ошибки декодирования');
-
-
-figure(4);
-% plot(SNRs,FdSchmidlAll_awgnSnr1);
-% plot(SNRs,FdProposedAll_awgnSnr1,'r');
-semilogy(SNRs,ErRateSchmidlAll_raySnr1);hold on;grid on;
-semilogy(SNRs,ErRateProposedAll_raySnr1,'r');
-semilogy(SNRs,ErRateSchmidlOldAll_raySnr1,'g');
-legend('Модифицированный Шмидля','Предложенный','Исходный Шмидля');
-xlabel('ОСШ, дБ');ylabel('Оценка вероятности ошибки декодирования');
+% figure(3);
+% % plot(SNRs,FdSchmidlAll_awgnSnr1);
+% % plot(SNRs,FdProposedAll_awgnSnr1,'r');
+% semilogy(SNRs,ErRateSchmidlAll_awgnSnr1);hold on;grid on;
+% semilogy(SNRs,ErRateProposedAll_awgnSnr1,'r');
+% semilogy(SNRs,ErRateSchmidlOldAll_awgnSnr1,'g');
+% legend('Модифицированный Шмидля','Предложенный','Исходный Шмидля');
+% xlabel('ОСШ, дБ');ylabel('Оценка вероятности ошибки декодирования');
+% 
+% 
+% figure(4);
+% % plot(SNRs,FdSchmidlAll_awgnSnr1);
+% % plot(SNRs,FdProposedAll_awgnSnr1,'r');
+% semilogy(SNRs,ErRateSchmidlAll_raySnr1);hold on;grid on;
+% semilogy(SNRs,ErRateProposedAll_raySnr1,'r');
+% semilogy(SNRs,ErRateSchmidlOldAll_raySnr1,'g');
+% legend('Модифицированный Шмидля','Предложенный','Исходный Шмидля');
+% xlabel('ОСШ, дБ');ylabel('Оценка вероятности ошибки декодирования');
 
 
 
