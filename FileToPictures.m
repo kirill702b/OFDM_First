@@ -1,6 +1,6 @@
 clear; close all;
-load('file_SNR_0_36_Ntests_1000_Fdop_10Hz.mat');
-ThreshErr = 1025;%0.5;
+load('file_SNR_5_50_Ntests_5000_Fdop_60Hz.mat');
+ThreshErr = 100;%0.5;%0.5;
 
 % FdSchmidlAll_awgn_mean =mean(FdSchmidlAll_awgn,3);
 % FdProposedAll_awgn_mean = mean(FdProposedAll_awgn,3);
@@ -36,14 +36,14 @@ for i=1:length(SNRs)
     ind1 = find(abs(FdSchmidlAll_awgnSnr(i,:)-Freqs)<ThreshErr);
     FdSchmidlAll_awgnSnr1(i) = sqrt(mean(power((FdSchmidlAll_awgnSnr(i,ind1)-Freqs),2)));
     ErRateSchmidlAll_awgnSnr1(i) = (Ntests- length(ind1))/Ntests;
-    ind1 = find(abs(FdSchmidlAll_raySnr(i,:)-Freqs)<100);
+    ind1 = find(abs(FdSchmidlAll_raySnr(i,:)-Freqs)<ThreshErr);
     FdSchmidlAll_raySnr1(i) = sqrt(mean(power((FdSchmidlAll_raySnr(i,ind1)-Freqs),2)));
     ErRateSchmidlAll_raySnr1(i) = (Ntests- length(ind1))/Ntests;
     
     ind1 = find(abs(FdProposedAll_awgnSnr(i,:)-Freqs)<ThreshErr);
     FdProposedAll_awgnSnr1(i) = sqrt(mean(power((FdProposedAll_awgnSnr(i,ind1)-Freqs),2)));
     ErRateProposedAll_awgnSnr1(i) = (Ntests- length(ind1))/Ntests;
-    ind1 = find(abs(FdProposedAll_raySnr(i,:)-Freqs)<100);
+    ind1 = find(abs(FdProposedAll_raySnr(i,:)-Freqs)<ThreshErr);
     FdProposedAll_raySnr1(i) = sqrt(mean(power((FdProposedAll_raySnr(i,ind1)-Freqs),2)));
     ErRateProposedAll_raySnr1(i) = (Ntests- length(ind1))/Ntests;
     

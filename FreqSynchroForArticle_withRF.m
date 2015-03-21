@@ -1,16 +1,18 @@
 %Почему бы не провести исследование зависимости от частоты доплера, от
 %часотного сдвига, параметров канала рэлея. Причем не нужно хвататься за
 %выбросы. просто усредняю и все
-clear all;close all;
-FreqOffset = 12.4; % Frequency offcet in subcarrier spacing
-SNR = 30;
-FreqDop = 27;
-%
+% clear all;close all;
+% FreqOffset = 12.5; % Frequency offcet in subcarrier spacing
+% SNR = 40;
+% FreqDop = 10;
+% %
 % tic;
+function [FdSchmidlAwgn,FdSchmidlRay,FdProposedAwgn,FdProposedRay,FdSchmidlAwgnOld,FdSchmidlRayOld]=FreqSynchroForArticle_withRF(SNR,FreqOffset,FreqDop)
 Nfft=2^17;
 dev = 50;
 EnableGraphs = 0;
 EnableOutput = 0;
+EnableOutputError = 0;
 PartOfB1 = 0.0;
 ProposedError =0;
 SchmidlError = 0;
@@ -44,9 +46,10 @@ C = ifft(frs4,N/4);
 BP = ifft(frs3,N);
 
 CiCcCciC=[C,C(end:-1:1),conj(C),conj(C(end:-1:1))];
-CiCcCciC_B = [CiCcCciC,zeros(1,fix(CP*N)),BP];
-frs = (randi(2,[1 N/2])-1.5)*2;%mseq(2,log2(N/2)); последовательность +-1
 
+frs = (randi(2,[1 N/2])-1.5)*2;%mseq(2,log2(N/2)); последовательность +-1
+A = ifft(frs,N/2);%A -последовательность длины N/2
+CiCcCciC_B = [CiCcCciC,zeros(1,fix(CP*N)),BP];%A,A];
 frs2Old = (randi(2,[1 N])-1.5)*2;
 G1 = ifft(frs3,N);
 % G2 = ifft((randi(2,[1 N/2])-1.5)*2);
@@ -55,7 +58,7 @@ G2 =G1(1:N/2);
 GciG=CiCcCciC_B;%[CiCcCciC,zeros(1,fix(CP*N)),CiCcCciC];
 G3=GciG(end-N+1:end);
 seq1 = [zeros(1,Nnoise),real(GciG),zeros(1,Nnoise)]+1i* [zeros(1,Nnoise),imag(GciG),zeros(1,Nnoise)];
-A = ifft(frs,N/2);%A -последовательность длины N/2
+
 %frs3(1:(N-Nc)/2) = zeros(1,(N-Nc)/2);frs3(end:-1:end-(N-Nc)/2+1) = zeros(1,(N-Nc)/2);
 B1 = ifft(frs3,N);% последовательность длины N
 AA = [A(1:N/2),A(1:N/2)];% последовательность длины N
@@ -224,8 +227,8 @@ seq3UpFcRayF0Dec500LpfFs1 = decimate(seq3UpFcRayF0Dec500Lpf,2,128,'fir'); % итог
 for j=N/2+1:N/2+2*Nnoise
     P1 = 0;R1 = 0;
     for k = 0:N/2
-        P1 = P1 + seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq1UpFcAwgnF0Dec500LpfFs1(1,j-k);
-        R1 = R1 + power(abs(seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1)),2);
+        P1 = P1 + seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k);
+        R1 = R1 + power(abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)),2);
 %         abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);
     end  
     RespOfFind(1,j-N/2) = power(abs(P1),2)/power(R1,2);
@@ -233,8 +236,8 @@ end
 for j=N/2+1:N/2+2*Nnoise
     P1 = 0;R1 = 0;
     for k = 0:N/2
-        P1 = P1 + seq1UpFcRayF0Dec500LpfFs1(1,j+k-1)*seq1UpFcRayF0Dec500LpfFs1(1,j-k);
-        R1 = R1 + power(abs(seq1UpFcRayF0Dec500LpfFs1(1,j+k-1)),2);
+        P1 = P1 + seq3UpFcRayF0Dec500LpfFs1(1,j+k-1)*seq3UpFcRayF0Dec500LpfFs1(1,j-k);
+        R1 = R1 + power(abs(seq3UpFcRayF0Dec500LpfFs1(1,j+k-1)),2);
 %         abs(seq3UpFcRayF0Dec500LpfFs1(1,j+k-1)*seq3UpFcRayF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);
     end  
     RespOfFind(2,j-N/2) = power(abs(P1),2)/power(R1,2);
@@ -367,17 +370,23 @@ maxAwgnIndSch = 0;
 maxRaySch = 0;
 maxRayIndSch = 0;
 curMax = 0;
-maxAwgnIndSch = find(RespOfFind(1,:)==max(RespOfFind(1,:)));
-maxRayIndSch = find(RespOfFind(2,:)==max(RespOfFind(2,:)));
-maxAwgnIndPro = find(RespOfFind(3,:)==max(RespOfFind(3,:)));
-maxRayIndPro = find(RespOfFind(4,:)==max(RespOfFind(4,:)));
+% maxAwgnSchOld =  Nnoise+1; %DELETE IF FINDING SYNCHRO!!!
+% maxRaySchOld =  Nnoise+1; %DELETE IF FINDING SYNCHRO!!!
+maxAwgnIndSch = Nnoise+1;%find(RespOfFind(1,:)==max(RespOfFind(1,:)));
+maxRayIndSch = Nnoise+1;%find(RespOfFind(2,:)==max(RespOfFind(2,:)));
+maxAwgnIndPro = Nnoise+1;%find(RespOfFind(3,:)==max(RespOfFind(3,:)));
+maxRayIndPro = Nnoise+1;%find(RespOfFind(4,:)==max(RespOfFind(4,:)));
+% maxAwgnIndSch = find(RespOfFind(1,:)==max(RespOfFind(1,:)));
+% maxRayIndSch = find(RespOfFind(2,:)==max(RespOfFind(2,:)));
+% maxAwgnIndPro =find(RespOfFind(3,:)==max(RespOfFind(3,:)));
+% maxRayIndPro = find(RespOfFind(4,:)==max(RespOfFind(4,:)));
 
 if EnableOutput
     fprintf('Time synchronization error Schmidl new %d %d, proposed %d %d, Schmidl old %d %d\n',maxAwgnIndSch-Nnoise-1,maxRayIndSch-Nnoise-1,maxAwgnIndPro-Nnoise-1,...
         maxRayIndPro-Nnoise-1,maxAwgnIndSchOld-Nnoise-1,maxRayIndSchOld-Nnoise-1);   
 end
-if maxAwgnIndPro-Nnoise-1~=0 || maxRayIndPro-Nnoise-1~=0
-    fprintf('ERROR, Proposed!!!\n ');
+if (maxAwgnIndPro-Nnoise-1~=0 || maxRayIndPro-Nnoise-1~=0) && EnableOutputError
+    fprintf('ERROR, Proposed!!!\n');
 %     maxAwgnIndPro
 %     maxRayIndPro
     ProposedError = 1;
@@ -406,7 +415,7 @@ seq12df(2,:) = seq3UpFcRayF0Dec500LpfFs1(1,maxRayIndPro:maxRayIndPro-1+N+N+fix(C
 
 % FkAwgn = fft(conj(AA).*seq1df(1,:),N);
 % FkAwgn = fft(conj(B).*seq12df(1,N+fix(CP*N)+1:N+fix(CP*N)+N),N);
-FkAwgn = fft(conj(BP).*seq12df(1,1+N+fix(CP*N):N+N+fix(CP*N)),N);
+FkAwgn = fft(conj(G3).*seq12df(1,1+N+fix(CP*N):N+N+fix(CP*N)),N);
 FkAwgn = [FkAwgn(N/2+1:end),FkAwgn(1:N/2)];
 kmax =  find(abs(FkAwgn)==max(abs(FkAwgn)));
 FcoarseAwgn = kmax-N/2;
@@ -417,11 +426,13 @@ if kmax>=2 && kmax <=1023
         alp = -1;
     end
     FfineAwgn = alp/(abs(FkAwgn(kmax))/abs(FkAwgn(kmax+alp))+1);
+else
+    FfineAwgn = 0;    
 end
 
 % FkRay = fft(conj(AA).*seq1df(2,:),N);
 % FkRay = fft(conj(B).*seq12df(2,N+fix(CP*N)+1:N+fix(CP*N)+N),N);
-FkRay = fft(conj(BP).*seq12df(2,1+N+fix(CP*N):N+N+fix(CP*N)),N);
+FkRay = fft(conj(G3).*seq12df(2,1+N+fix(CP*N):N+N+fix(CP*N)),N);
 FkRay = [FkRay(N/2+1:end),FkRay(1:N/2)];
 kmax =  find(abs(FkRay)==max(abs(FkRay)));
 FcoarseRay = kmax-N/2;
@@ -432,24 +443,31 @@ if kmax>=2 && kmax <=1023
         alp = -1;
     end
     FfineRay = alp/(abs(FkRay(kmax))/abs(FkRay(kmax+alp))+1);
-end    
+else
+    FfineRay = 0;
+end
 FdProposedAwgn = FcoarseAwgn + FfineAwgn - 1;
 FdProposedRay = FcoarseRay + FfineRay - 1;
 
 
 
 % Schmidl new ___________________________________________________
-seq1df(1,:) = seq1UpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndSch:maxAwgnIndSch+N-1);%Теперь уже все по честному 
-seq12df(1,:) = seq1UpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndSch:maxAwgnIndSch-1+N+N+fix(CP*N));%АГБШ
+seq1df(1,:) = seq3UpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndSch:maxAwgnIndSch+N-1);%Теперь уже все по честному 
+seq12df(1,:) = seq3UpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndSch:maxAwgnIndSch-1+N+N+fix(CP*N));%АГБШ
 
-seq1df(2,:) = seq1UpFcRayF0Dec500LpfFs1(1,maxRayIndSch:maxRayIndSch-1+N);%Теперь уже все по честному
-seq12df(2,:) = seq1UpFcRayF0Dec500LpfFs1(1,maxRayIndSch:maxRayIndSch-1+N+N+fix(CP*N));%РЭЛЕЙ
+seq1df(2,:) = seq3UpFcRayF0Dec500LpfFs1(1,maxRayIndSch:maxRayIndSch-1+N);%Теперь уже все по честному
+seq12df(2,:) = seq3UpFcRayF0Dec500LpfFs1(1,maxRayIndSch:maxRayIndSch-1+N+N+fix(CP*N));%РЭЛЕЙ
 
 
 
 FkAwgn = fft(conj(G3).*seq12df(1,1+N+fix(CP*N):N+N+fix(CP*N)),N);
 FkAwgn = [FkAwgn(N/2+1:end),FkAwgn(1:N/2)];
 kmax =  find(abs(FkAwgn)==max(abs(FkAwgn)));
+% Fk2sum = abs(FkAwgn(1:end-1))+abs(FkAwgn(2:end));
+% kmax = find((Fk2sum)==max((Fk2sum)));
+% if Fk2sum(kmax+1)>Fk2sum(kmax)
+%     kmax = kmax+1;
+% end
 
 
 FcoarseAwgn = kmax-N/2;
@@ -460,6 +478,8 @@ if kmax>=2 && kmax <=1023
         alp = -1;
     end
     FfineAwgn = alp/(abs(FkAwgn(kmax))/abs(FkAwgn(kmax+alp))+1);
+else
+    FfineAwgn = 0;
 end
 
 FdSchmidlAwgn = FcoarseAwgn + FfineAwgn - 1;
@@ -480,6 +500,11 @@ FdSchmidlAwgn = FcoarseAwgn-2 + (indmm-1 -dev)*N/Nfft;
 FkRay = fft(conj(G3).*seq12df(2,1+N+fix(CP*N):N+N+fix(CP*N)),N);
 FkRay = [FkRay(N/2+1:end),FkRay(1:N/2)];
 kmax =  find(abs(FkRay)==max(abs(FkRay)));
+% Fk2sum = abs(FkRay(1:end-1))+abs(FkRay(2:end));
+% kmax = find((Fk2sum)==max((Fk2sum)));
+% if Fk2sum(kmax+1)>Fk2sum(kmax)
+%     kmax = kmax+1;
+% end
 FcoarseRay = kmax-N/2;
 if kmax>=2 && kmax <=1023
     if abs(FkRay(kmax-1))<= abs(FkRay(kmax+1))
@@ -488,6 +513,8 @@ if kmax>=2 && kmax <=1023
         alp = -1;
     end
     FfineRay = alp/(abs(FkRay(kmax))/abs(FkRay(kmax+alp))+1);
+else
+    FfineRay = 0;
 end    
 
 FdSchmidlRay = FcoarseRay + FfineRay - 1;
@@ -540,7 +567,7 @@ FdSchmidlRay = FcoarseRay-2 + (indmm-1-dev)*N/Nfft ;
 % FdSchmidlAwgn = (1+256-find(BgAwgn==max(BgAwgn)))*2 +feAwgn;% 2*(513-(find(BgAwgn==max(BgAwgn)))) + feAwgn
 % 
 % FdSchmidlRay = (1+256-find(BgRay==max(BgRay)))*2 +feRay;%2*(513-(find(BgRay==max(BgRay)))) + feRay
-if abs(FdSchmidlRay-FreqOffset )>MaxFreqError
+if abs(FdSchmidlRay-FreqOffset )>MaxFreqError && EnableOutputError
     SchmidlError = 1;
     fprintf('ERROR, Schmidl New!!!\n');
 end
@@ -583,7 +610,7 @@ for i = 1:N/2
 end
 FdSchmidlAwgnOld = (1+256-find(BgAwgnOld==max(BgAwgnOld)))*2 +feAwgnOld;% 2*(513-(find(BgAwgn==max(BgAwgn)))) + feAwgn
 FdSchmidlRayOld = (1+256-find(BgRayOld==max(BgRayOld)))*2 +feRayOld;%2*(513-(find(BgRay==max(BgRay)))) + feRay
-if abs(FdSchmidlRayOld-FreqOffset )>MaxFreqError
+if abs(FdSchmidlRayOld-FreqOffset )>MaxFreqError && EnableOutputError
     SchmidlOldError = 1;
     fprintf('ERROR, Schmidl Old!!!\n');
 end
@@ -605,4 +632,4 @@ end
 % figure;plot(abs(RespOfFind));
 %%
 % figure;plot(Bg);
-toc;
+% toc;
