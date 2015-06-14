@@ -2,16 +2,16 @@
 %часотного сдвига, параметров канала рэлея. Причем не нужно хвататься за
 %выбросы. просто усредняю и все
 % clear all;close all;
-% FreqOffset = 12.5; % Frequency offcet in subcarrier spacing
+% FreqOffset = 12.4; % Frequency offcet in subcarrier spacing
 % SNR = 40;
-% FreqDop = 10;
+% FreqDop = 0.0001;
 % %
 % tic;
 function [FdSchmidlAwgn,FdSchmidlRay,FdProposedAwgn,FdProposedRay,FdSchmidlAwgnOld,FdSchmidlRayOld]=FreqSynchroForArticle_withRF(SNR,FreqOffset,FreqDop)
 Nfft=2^17;
 dev = 50;
 EnableGraphs = 0;
-EnableOutput = 0;
+EnableOutput = 1;
 EnableOutputError = 0;
 PartOfB1 = 0.0;
 ProposedError =0;

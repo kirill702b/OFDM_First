@@ -1,6 +1,6 @@
 clear; close all;
-load('file_SNR_5_50_Ntests_5000_Fdop_60Hz.mat');
-ThreshErr = 100;%0.5;%0.5;
+load('file_SNR_5_50_Ntests_5000_Fdop_0.001Hz.mat');
+ThreshErr = 1024;%0.5;%0.5;
 
 % FdSchmidlAll_awgn_mean =mean(FdSchmidlAll_awgn,3);
 % FdProposedAll_awgn_mean = mean(FdProposedAll_awgn,3);
@@ -71,10 +71,11 @@ figure(1);
 semilogy(SNRs,FdSchmidlAll_awgnSnr1);hold on;grid on;
 
 semilogy(SNRs,FdProposedAll_awgnSnr1,'r');
-semilogy(SNRs,FdSchmidlOldAll_awgnSnr1,'g');
-legend('Модифицированный Шмидля','Предложенный','Исходный Шмидля');
+% semilogy(SNRs,FdSchmidlOldAll_awgnSnr1,'g');
+% legend('Предлагаемый метод','Метод Ву','Исходный Шмидля');
+legend('Предлагаемый метод','Метод Ву');
 % legend('Предложенный','Исходный Шмидля');
-xlabel('ОСШ, дБ');ylabel('СКО от истинного значения по частоте в межканальных интервалах');
+xlabel('ОСШ, дБ');ylabel('СКО частоты в межканальных интервалах');
 
 figure(2);
 % plot(SNRs,FdSchmidlAll_raySnr1);
@@ -82,10 +83,11 @@ figure(2);
 semilogy(SNRs,FdSchmidlAll_raySnr1);hold on;grid on;
 
 semilogy(SNRs,FdProposedAll_raySnr1,'r');
-semilogy(SNRs,FdSchmidlOldAll_raySnr1,'g');
+% semilogy(SNRs,FdSchmidlOldAll_raySnr1,'g');
 % legend('Предложенный','Исходный Шмидля');
-legend('Модифицированный Шмидля','Предложенный','Исходный Шмидля');
-xlabel('ОСШ, дБ');ylabel('СКО от истинного значения по частоте в межканальных интервалах');
+% legend('Предлагаемый метод','Метод Ву','Исходный Шмидля');
+legend('Предлагаемый метод','Метод Ву');
+xlabel('ОСШ, дБ');ylabel('СКО частоты в межканальных интервалах');
 
 % figure(3);
 % % plot(SNRs,FdSchmidlAll_awgnSnr1);

@@ -1,5 +1,5 @@
 clear all; close all;
-FreqDop = 60;
+FreqDop = 0.001;
 Ntests = 5000;
 SNR_n = 0;
 FreqOffset_n = 0;
