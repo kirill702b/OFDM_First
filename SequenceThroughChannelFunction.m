@@ -1,4 +1,4 @@
-function [ seqInUpFcChF0PreDecLpfFs1 ] = SequenceThroughChannelFunction( Preamble,N,FreqOffset,SNR,isRayOrAwgnOnly,Nnoise,FreqDop,delN)
+function [ seqOutAwgn ,seqOutRay ] = SequenceThroughChannelFunction( Preamble,N,FreqOffset,SNR,Nnoise,FreqDop,delN)
     Rd = 18e6; % Data rate bit per second
     CP = 0.1; % Cyclic prefix length as part of symbol period
     Fs1 =(Rd/(1-CP));%20mHz, 50ns 
@@ -18,24 +18,40 @@ function [ seqInUpFcChF0PreDecLpfFs1 ] = SequenceThroughChannelFunction( Preambl
         RayCh1 = rayleighchan(1/Fs,FreqDop,DelOfPath,AvRecPwr);
         RayCh1.ResetBeforeFiltering = 1;
     end
-    if isRayOrAwgnOnly
-        seqInUpFcCh = awgn(filter(RayCh1,seqInUpFc),SNR);
-    else
-        seqInUpFcCh = awgn(seqInUpFc,SNR);%сигнал после АГБШ канала
-    end
-    seqInUpFcCh = [seqInUpFcCh(delN+1:end),zeros(1,delN)];
-    seqInUpFcChF0 = seqInUpFcCh.*exp(-1i*2*pi*Fc*tUp3);
+    
+    seqInUpFcAwgn = awgn(filter(RayCh1,seqInUpFc),SNR);   
+    seqInUpFcAwgn = [seqInUpFcAwgn(delN+1:end),zeros(1,delN)];
+    seqInUpFcAwgnF0 = seqInUpFcAwgn.*exp(-1i*2*pi*Fc*tUp3);
     DecFactor = Fs/Fs1;
     if DecFactor-fix(DecFactor)~=0
         display('Decimation factor is not integer!!! Exit.');
         return;
     end
     Decs = sort(factor(DecFactor),'descend');
-    seqInUpFcChF0PreDec = decimate(seqInUpFcChF0,Decs(1),OrderOfFil1,'fir');
+    seqInUpFcAwgnF0PreDec = decimate(seqInUpFcAwgnF0,Decs(1),OrderOfFil1,'fir');
     for j=2:length(Decs)-1
-        seqInUpFcChF0PreDec = decimate(seqInUpFcChF0PreDec,Decs(j),OrderOfFil1,'fir');
+        seqInUpFcAwgnF0PreDec = decimate(seqInUpFcAwgnF0PreDec,Decs(j),OrderOfFil1,'fir');
     end
-    seqInUpFcChF0PreDecLpf=seqInUpFcChF0PreDec;
-    seqInUpFcChF0PreDecLpfFs1 = decimate(seqInUpFcChF0PreDecLpf,2,OrderOfFil2,'fir');
+    seqInUpFcAwgnF0PreDecLpf=seqInUpFcAwgnF0PreDec;   
+    seqOutAwgn = decimate(seqInUpFcAwgnF0PreDecLpf,2,OrderOfFil2,'fir');
+    
+    
+    
+    
+    seqInUpFcRay = awgn(seqInUpFc,SNR);%сигнал после АГБШ канала
+    seqInUpFcRay = [seqInUpFcRay(delN+1:end),zeros(1,delN)];
+    seqInUpFcRayF0 = seqInUpFcRay.*exp(-1i*2*pi*Fc*tUp3);
+    DecFactor = Fs/Fs1;
+    if DecFactor-fix(DecFactor)~=0
+        display('Decimation factor is not integer!!! Exit.');
+        return;
+    end
+    Decs = sort(factor(DecFactor),'descend');
+    seqInUpFcRayF0PreDec = decimate(seqInUpFcRayF0,Decs(1),OrderOfFil1,'fir');
+    for j=2:length(Decs)-1
+        seqInUpFcRayF0PreDec = decimate(seqInUpFcRayF0PreDec,Decs(j),OrderOfFil1,'fir');
+    end
+    seqInUpFcRayF0PreDecLpf=seqInUpFcRayF0PreDec;   
+    seqOutRay = decimate(seqInUpFcRayF0PreDecLpf,2,OrderOfFil2,'fir');
 end
 
