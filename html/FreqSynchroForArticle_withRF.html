@@ -1,0 +1,1334 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>FreqSynchroForArticle_withRF</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-06-14"><meta name="DC.source" content="FreqSynchroForArticle_withRF.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#3">Proposed</a></li></ul></div><pre class="codeinput"><span class="comment">%&#1055;&#1086;&#1095;&#1077;&#1084;&#1091; &#1073;&#1099; &#1085;&#1077; &#1087;&#1088;&#1086;&#1074;&#1077;&#1089;&#1090;&#1080; &#1080;&#1089;&#1089;&#1083;&#1077;&#1076;&#1086;&#1074;&#1072;&#1085;&#1080;&#1077; &#1079;&#1072;&#1074;&#1080;&#1089;&#1080;&#1084;&#1086;&#1089;&#1090;&#1080; &#1086;&#1090; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1099; &#1076;&#1086;&#1087;&#1083;&#1077;&#1088;&#1072;, &#1086;&#1090;</span>
+<span class="comment">%&#1095;&#1072;&#1089;&#1086;&#1090;&#1085;&#1086;&#1075;&#1086; &#1089;&#1076;&#1074;&#1080;&#1075;&#1072;, &#1087;&#1072;&#1088;&#1072;&#1084;&#1077;&#1090;&#1088;&#1086;&#1074; &#1082;&#1072;&#1085;&#1072;&#1083;&#1072; &#1088;&#1101;&#1083;&#1077;&#1103;. &#1055;&#1088;&#1080;&#1095;&#1077;&#1084; &#1085;&#1077; &#1085;&#1091;&#1078;&#1085;&#1086; &#1093;&#1074;&#1072;&#1090;&#1072;&#1090;&#1100;&#1089;&#1103; &#1079;&#1072;</span>
+<span class="comment">%&#1074;&#1099;&#1073;&#1088;&#1086;&#1089;&#1099;. &#1087;&#1088;&#1086;&#1089;&#1090;&#1086; &#1091;&#1089;&#1088;&#1077;&#1076;&#1085;&#1103;&#1102; &#1080; &#1074;&#1089;&#1077;</span>
+<span class="comment">% clear all;close all;</span>
+<span class="comment">% FreqOffset = 12.4; % Frequency offcet in subcarrier spacing</span>
+<span class="comment">% SNR = 40;</span>
+<span class="comment">% FreqDop = 0.0001;</span>
+<span class="comment">% %</span>
+<span class="comment">% tic;</span>
+<span class="keyword">function</span> [FdSchmidlAwgn,FdSchmidlRay,FdProposedAwgn,FdProposedRay,FdSchmidlAwgnOld,FdSchmidlRayOld]=FreqSynchroForArticle_withRF(SNR,FreqOffset,FreqDop)
+</pre><pre class="codeinput">Nfft=2^17;
+dev = 50;
+EnableGraphs = 0;
+EnableOutput = 1;
+EnableOutputError = 0;
+PartOfB1 = 0.0;
+ProposedError =0;
+SchmidlError = 0;
+SchmidlOldError = 0;
+MaxFreqError = 0.5;
+
+Nc = 1000; <span class="comment">% Number of subcarriers</span>
+N = 1024; <span class="comment">% Number of IFFT points</span>
+Rd = 18e6; <span class="comment">% Data rate bit per second</span>
+CP = 0.1; <span class="comment">% Cyclic prefix length as part of symbol period</span>
+Fs1 =(Rd/(1-CP));<span class="comment">%20mHz, 50ns</span>
+<span class="comment">%</span>
+NumOfOsc = 16; <span class="comment">% Number of Oscillator for Jakes' model</span>
+Fc = 2e8; <span class="comment">% Hz, Carrier frequency 2GHz</span>
+OsFac = 10; <span class="comment">%oversampling factor</span>
+Fs = Fc*OsFac; <span class="comment">%sampling frequency Fs = 20GHz</span>
+VehSpeed = 150; <span class="comment">% kmph, Speed of vehicle</span>
+NumOfPath = 4; <span class="comment">% Number of paths</span>
+DelOfPath = [0, 1, 2, 3]/Fs; <span class="comment">% Delays of the paths in samples</span>
+AvRecPwr = [0, -3, -6, -9]; <span class="comment">% Average received power, dB</span>
+Nnoise = 400;<span class="comment">%number of noise samples</span>
+phiRand = 2*pi/3;
+Nshow = 100;
+
+FullTimingSyncSim = 0;<span class="comment">%Enable simulation of second method of timing synchronization</span>
+
+<span class="comment">%</span>
+frs3 = (randi(2,[1 N])-1.5)*2;<span class="comment">% &#1074;&#1090;&#1086;&#1088;&#1072;&#1103; &#1087;&#1086;&#1089;&#1083;&#1077;&#1076;&#1086;&#1074;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1089;&#1090;&#1100;</span>
+frs4 = (randi(2,[1 N/4])-1.5)*2;
+C = ifft(frs4,N/4);
+BP = ifft(frs3,N);
+
+CiCcCciC=[C,C(end:-1:1),conj(C),conj(C(end:-1:1))];
+
+frs = (randi(2,[1 N/2])-1.5)*2;<span class="comment">%mseq(2,log2(N/2)); &#1087;&#1086;&#1089;&#1083;&#1077;&#1076;&#1086;&#1074;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1089;&#1090;&#1100; +-1</span>
+A = ifft(frs,N/2);<span class="comment">%A -&#1087;&#1086;&#1089;&#1083;&#1077;&#1076;&#1086;&#1074;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1089;&#1090;&#1100; &#1076;&#1083;&#1080;&#1085;&#1099; N/2</span>
+CiCcCciC_B = [CiCcCciC,zeros(1,fix(CP*N)),BP];<span class="comment">%A,A];</span>
+frs2Old = (randi(2,[1 N])-1.5)*2;
+G1 = ifft(frs3,N);
+<span class="comment">% G2 = ifft((randi(2,[1 N/2])-1.5)*2);</span>
+G2 =G1(1:N/2);
+<span class="comment">% GciG=[G2,G2(end:-1:1),zeros(1,fix(CP*N)),conj(G2),conj(G2(end:-1:1))];</span>
+GciG=CiCcCciC_B;<span class="comment">%[CiCcCciC,zeros(1,fix(CP*N)),CiCcCciC];</span>
+G3=GciG(end-N+1:end);
+seq1 = [zeros(1,Nnoise),real(GciG),zeros(1,Nnoise)]+1i* [zeros(1,Nnoise),imag(GciG),zeros(1,Nnoise)];
+
+<span class="comment">%frs3(1:(N-Nc)/2) = zeros(1,(N-Nc)/2);frs3(end:-1:end-(N-Nc)/2+1) = zeros(1,(N-Nc)/2);</span>
+B1 = ifft(frs3,N);<span class="comment">% &#1087;&#1086;&#1089;&#1083;&#1077;&#1076;&#1086;&#1074;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1089;&#1090;&#1100; &#1076;&#1083;&#1080;&#1085;&#1099; N</span>
+AA = [A(1:N/2),A(1:N/2)];<span class="comment">% &#1087;&#1086;&#1089;&#1083;&#1077;&#1076;&#1086;&#1074;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1089;&#1090;&#1100; &#1076;&#1083;&#1080;&#1085;&#1099; N</span>
+<span class="comment">% B = [conj(A(end:-1:1)), B1(1:N/2)];</span>
+<span class="comment">% B = [conj(AA(end:-1:1+fix(N*PartOfB1))), B1(1:fix(N*PartOfB1))/PartOfB1];%</span>
+B = ifft(frs3,N);
+BOld = ifft(frs2Old,N);
+frs2 = fft(B,N);
+AA_B = [AA, zeros(1,fix(CP*N)),B]; <span class="comment">%&#1076;&#1074;&#1077; &#1087;&#1086;&#1089;&#1083;&#1077;&#1076;&#1086;&#1074;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1089;&#1090;&#1080; &#1076;&#1083;&#1080;&#1085;&#1099; 2048+102=2150</span>
+<span class="comment">% seq1 = [zeros(1,Nnoise),real(AA_B),zeros(1,Nnoise)]+1i* [zeros(1,Nnoise),imag(AA_B),zeros(1,Nnoise)];% &#1087;&#1086;&#1089;&#1083;&#1077;&#1076;&#1086;&#1074;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1089;&#1090;&#1100; &#1089; &#1085;&#1072;&#1095;&#1072;&#1083;&#1086;&#1084; &#1080; &#1082;&#1086;&#1085;&#1094;&#1086;&#1084; &#1073;&#1077;&#1079; &#1089;&#1080;&#1075;&#1085;&#1072;&#1083;&#1072;</span>
+AA_BOld = [AA, zeros(1,fix(CP*N)),BOld];
+seq1Old = [zeros(1,Nnoise),real(AA_BOld),zeros(1,Nnoise)]+1i* [zeros(1,Nnoise),imag(AA_BOld),zeros(1,Nnoise)];<span class="comment">% &#1087;&#1086;&#1089;&#1083;&#1077;&#1076;&#1086;&#1074;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1089;&#1090;&#1100; &#1089; &#1085;&#1072;&#1095;&#1072;&#1083;&#1086;&#1084; &#1080; &#1082;&#1086;&#1085;&#1094;&#1086;&#1084; &#1073;&#1077;&#1079; &#1089;&#1080;&#1075;&#1085;&#1072;&#1083;&#1072;</span>
+<span class="comment">%seq1 - &#1101;&#1090;&#1086; &#1076;&#1083;&#1103; &#1084;&#1077;&#1090;&#1086;&#1076;&#1072; &#1096;&#1084;&#1080;&#1076;&#1083;&#1103;</span>
+<span class="comment">%seq2 - &#1101;&#1090;&#1086; &#1076;&#1083;&#1103; &#1084;&#1077;&#1090;&#1086;&#1076;&#1072; proposed</span>
+
+
+CCmCmC = [C,C,-C,-C];
+CCmCmC_B = [CCmCmC, zeros(1,fix(CP*N)),BP];
+seq2 = [zeros(1,Nnoise),real(CCmCmC),zeros(1,Nnoise)]+1i* [zeros(1,Nnoise),imag(CCmCmC),zeros(1,Nnoise)];
+
+seq3 = [zeros(1,Nnoise),real(CiCcCciC_B),zeros(1,Nnoise)]+1i* [zeros(1,Nnoise),imag(CiCcCciC_B),zeros(1,Nnoise)];
+
+
+
+
+<span class="comment">% &#1076;&#1083;&#1080;&#1085;&#1072; 6*N+2150 = 8294</span>
+
+seq1Up = resample(seq1,Fs/Fs1,1); <span class="comment">%&#1087;&#1086;&#1089;&#1083;&#1077;&#1076;&#1086;&#1074;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1089;&#1090;&#1100; &#1085;&#1072; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1077; 2&#1043;&#1043;&#1094;, &#1073;&#1099;&#1083;&#1072; &#1085;&#1072; 20MHz</span>
+seq1OldUp = resample(seq1Old,Fs/Fs1,1);
+seq3Up = resample(seq3,Fs/Fs1,1);
+<span class="keyword">if</span> FullTimingSyncSim
+    seq2Up = resample(seq2,Fs/Fs1,1);
+<span class="keyword">end</span>
+tUp = (1:length(seq1Up))/Fs;<span class="comment">% &#1074;&#1077;&#1082;&#1090;&#1086;&#1088; &#1074;&#1088;&#1077;&#1084;&#1077;&#1085; &#1076;&#1083;&#1103; &#1101;&#1090;&#1086;&#1081; &#1085;&#1086;&#1074;&#1086;&#1081; &#1087;&#1086;&#1089;&#1083;&#1077;&#1076;&#1086;&#1074;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1089;&#1090;&#1080;</span>
+tUp3 = (1:length(seq3Up))/Fs;
+seq1UpFc = seq1Up.*exp(1i*2*pi*(Fc+FreqOffset*Fs1/N)*tUp);<span class="comment">% &#1087;&#1086;&#1089;&#1083;&#1077;&#1076;&#1086;&#1074;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1089;&#1090;&#1100; &#1091;&#1078;&#1077; &#1085;&#1072; &#1085;&#1077;&#1089;&#1091;&#1097;&#1077;&#1081; + &#1076;&#1086;&#1087;&#1083;&#1077;&#1088;&#1086;&#1074;&#1082;&#1080;&#1081; &#1089;&#1076;&#1074;&#1080;&#1075;</span>
+seq1OldUpFc = seq1OldUp.*exp(1i*2*pi*(Fc+FreqOffset*Fs1/N)*tUp);<span class="comment">% &#1087;&#1086;&#1089;&#1083;&#1077;&#1076;&#1086;&#1074;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1089;&#1090;&#1100; &#1091;&#1078;&#1077; &#1085;&#1072; &#1085;&#1077;&#1089;&#1091;&#1097;&#1077;&#1081; + &#1076;&#1086;&#1087;&#1083;&#1077;&#1088;&#1086;&#1074;&#1082;&#1080;&#1081; &#1089;&#1076;&#1074;&#1080;&#1075;</span>
+seq3UpFc = seq3Up.*exp(1i*2*pi*(Fc+FreqOffset*Fs1/N)*tUp3);
+<span class="keyword">if</span> FullTimingSyncSim
+    seq2UpFc = seq2Up.*exp(1i*2*pi*(Fc+FreqOffset*Fs1/N)*tUp3);
+<span class="keyword">end</span>
+
+
+tt1 = (1:length(AA)*Fs/Fs1)/Fs;
+nfft = 2^15;
+<span class="comment">% [pw,f]=pwelch(seq1UpFcAwgn(3*N*Fs/Fs1+1:3*N*Fs/Fs1+length(AA)*Fs/Fs1),[],[],nfft,Fs);</span>
+<span class="comment">% figure;plot(f,10*log10(pw));grid on;%</span>
+<span class="comment">% [pw,f]=pwelch(seq1UpFcAwgn,[],[],nfft,Fs);</span>
+<span class="comment">% figure;plot(f,10*log10(pw));grid on;</span>
+<span class="comment">% [pw,f]=pwelch(aa1,[],[],nfft,Fs);</span>
+<span class="comment">% figure;plot(f-Fs/2,[pw(nfft/2+1:nfft);pw(1:nfft/2)]);grid on;</span>
+<span class="keyword">if</span> ~exist(<span class="string">'RayCh1'</span>)
+    RayCh1 = rayleighchan(1/Fs,FreqDop,DelOfPath,AvRecPwr);
+<span class="comment">%     RayCh1 = ricianchan(1/Fs,277.3,10,DelOfPath,AvRecPwr);</span>
+    RayCh1.ResetBeforeFiltering = 1;
+<span class="keyword">end</span>
+<span class="comment">% RayCh1</span>
+seq1UpFcAwgn = awgn(seq1UpFc,SNR);<span class="comment">%,'measured');%&#1089;&#1080;&#1075;&#1085;&#1072;&#1083; &#1087;&#1086;&#1089;&#1083;&#1077; &#1040;&#1043;&#1041;&#1064; &#1082;&#1072;&#1085;&#1072;&#1083;&#1072;</span>
+seq1UpFcRay = awgn(filter(RayCh1,seq1UpFc),SNR);<span class="comment">%,'measured');</span>
+
+seq1OldUpFcAwgn = awgn(seq1OldUpFc,SNR);<span class="comment">%,'measured');%&#1089;&#1080;&#1075;&#1085;&#1072;&#1083; &#1087;&#1086;&#1089;&#1083;&#1077; &#1040;&#1043;&#1041;&#1064; &#1082;&#1072;&#1085;&#1072;&#1083;&#1072;</span>
+seq1OldUpFcRay = awgn(filter(RayCh1,seq1OldUpFc),SNR);<span class="comment">%,'measured');</span>
+
+seq3UpFcAwgn = awgn(seq3UpFc,SNR);<span class="comment">%&#1089;&#1080;&#1075;&#1085;&#1072;&#1083; &#1087;&#1086;&#1089;&#1083;&#1077; &#1040;&#1043;&#1041;&#1064; &#1082;&#1072;&#1085;&#1072;&#1083;&#1072;</span>
+seq3UpFcRay = awgn(filter(RayCh1,seq3UpFc),SNR);
+
+<span class="keyword">if</span> FullTimingSyncSim
+    seq2UpFcAwgn = awgn(seq2UpFc,SNR);<span class="comment">%&#1089;&#1080;&#1075;&#1085;&#1072;&#1083; &#1087;&#1086;&#1089;&#1083;&#1077; &#1040;&#1043;&#1041;&#1064; &#1082;&#1072;&#1085;&#1072;&#1083;&#1072;</span>
+    seq2UpFcRay = awgn(filter(RayCh1,seq2UpFc),SNR);
+<span class="keyword">end</span>
+
+seq1UpFcAwgnF0 = seq1UpFcAwgn.*exp(-1i*2*pi*Fc*tUp);<span class="comment">%&#1089;&#1080;&#1075;&#1085;&#1072;&#1083; &#1087;&#1086;&#1089;&#1083;&#1077; &#1087;&#1077;&#1088;&#1077;&#1085;&#1086;&#1089;&#1072; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1099; &#1085;&#1072; 0</span>
+seq1UpFcRayF0 = seq1UpFcRay.*exp(-1i*2*pi*Fc*tUp);<span class="comment">%&#1089;&#1080;&#1075;&#1085;&#1072;&#1083; &#1087;&#1086;&#1089;&#1083;&#1077; &#1087;&#1077;&#1088;&#1077;&#1085;&#1086;&#1089;&#1072; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1099; &#1085;&#1072; 0</span>
+seq1OldUpFcAwgnF0 = seq1OldUpFcAwgn.*exp(-1i*2*pi*Fc*tUp);<span class="comment">%&#1089;&#1080;&#1075;&#1085;&#1072;&#1083; &#1087;&#1086;&#1089;&#1083;&#1077; &#1087;&#1077;&#1088;&#1077;&#1085;&#1086;&#1089;&#1072; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1099; &#1085;&#1072; 0</span>
+seq1OldUpFcRayF0 = seq1OldUpFcRay.*exp(-1i*2*pi*Fc*tUp);<span class="comment">%&#1089;&#1080;&#1075;&#1085;&#1072;&#1083; &#1087;&#1086;&#1089;&#1083;&#1077; &#1087;&#1077;&#1088;&#1077;&#1085;&#1086;&#1089;&#1072; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1099; &#1085;&#1072; 0</span>
+
+seq3UpFcAwgnF0 = seq3UpFcAwgn.*exp(-1i*2*pi*Fc*tUp3);<span class="comment">%&#1089;&#1080;&#1075;&#1085;&#1072;&#1083; &#1087;&#1086;&#1089;&#1083;&#1077; &#1087;&#1077;&#1088;&#1077;&#1085;&#1086;&#1089;&#1072; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1099; &#1085;&#1072; 0</span>
+seq3UpFcRayF0 = seq3UpFcRay.*exp(-1i*2*pi*Fc*tUp3);<span class="comment">%&#1089;&#1080;&#1075;&#1085;&#1072;&#1083; &#1087;&#1086;&#1089;&#1083;&#1077; &#1087;&#1077;&#1088;&#1077;&#1085;&#1086;&#1089;&#1072; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1099; &#1085;&#1072; 0</span>
+<span class="keyword">if</span> FullTimingSyncSim
+    seq2UpFcAwgnF0 = seq2UpFcAwgn.*exp(-1i*2*pi*Fc*tUp3);<span class="comment">%&#1089;&#1080;&#1075;&#1085;&#1072;&#1083; &#1087;&#1086;&#1089;&#1083;&#1077; &#1087;&#1077;&#1088;&#1077;&#1085;&#1086;&#1089;&#1072; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1099; &#1085;&#1072; 0</span>
+    seq2UpFcRayF0 = seq2UpFcRay.*exp(-1i*2*pi*Fc*tUp3);<span class="comment">%&#1089;&#1080;&#1075;&#1085;&#1072;&#1083; &#1087;&#1086;&#1089;&#1083;&#1077; &#1087;&#1077;&#1088;&#1077;&#1085;&#1086;&#1089;&#1072; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1099; &#1085;&#1072; 0</span>
+<span class="keyword">end</span>
+<span class="comment">% figure;hold on;grid on;</span>
+<span class="comment">% plot(seq1UpFcAwgnF0);</span>
+<span class="comment">% plot(seq1UpFcRayF0,'r');</span>
+<span class="comment">% [pw,f]=pwelch(seq1UpFcAwgnF0,[],[],nfft,Fs);% &#1089;&#1087;&#1077;&#1082;&#1090;&#1088; &#1089;&#1080;&#1075;&#1085;&#1072;&#1083;&#1072;</span>
+<span class="comment">% figure;hold on;grid on;plot(f,10*log10(pw));grid on;%&#1088;&#1080;&#1089;&#1091;&#1077;&#1084;%</span>
+<span class="comment">% [pw,f]=pwelch(seq1UpFcRayF0,[],[],nfft,Fs);% &#1089;&#1087;&#1077;&#1082;&#1090;&#1088; &#1089;&#1080;&#1075;&#1085;&#1072;&#1083;&#1072;</span>
+<span class="comment">% plot(f,10*log10(pw),'r');grid on;%&#1088;&#1080;&#1089;&#1091;&#1077;&#1084;</span>
+
+Dec = Fs/Fs1;
+<span class="keyword">if</span> Dec-fix(Dec)~=0
+    display(<span class="string">'Decimation factor is not integer!!! Exit.'</span>);
+    <span class="keyword">return</span>;
+<span class="keyword">end</span>
+Decs = sort(factor(Dec),<span class="string">'descend'</span>);
+
+
+seq1UpFcAwgnF0Dec500 = decimate(seq1UpFcAwgnF0,Decs(1),64,<span class="string">'fir'</span>);<span class="comment">% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+seq1UpFcRayF0Dec500 = decimate(seq1UpFcRayF0,Decs(1),64,<span class="string">'fir'</span>);<span class="comment">% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+seq1OldUpFcAwgnF0Dec500 = decimate(seq1OldUpFcAwgnF0,Decs(1),64,<span class="string">'fir'</span>);<span class="comment">% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+seq1OldUpFcRayF0Dec500 = decimate(seq1OldUpFcRayF0,Decs(1),64,<span class="string">'fir'</span>);<span class="comment">% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+seq3UpFcAwgnF0Dec500 = decimate(seq3UpFcAwgnF0,Decs(1),64,<span class="string">'fir'</span>);<span class="comment">% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+seq3UpFcRayF0Dec500 = decimate(seq3UpFcRayF0,Decs(1),64,<span class="string">'fir'</span>);<span class="comment">% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+<span class="keyword">for</span> j=2:length(Decs)-1
+    seq1UpFcAwgnF0Dec500 = decimate(seq1UpFcAwgnF0Dec500,Decs(j),64,<span class="string">'fir'</span>);<span class="comment">% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+    seq1UpFcRayF0Dec500 = decimate(seq1UpFcRayF0Dec500,Decs(j),64,<span class="string">'fir'</span>);<span class="comment">% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+    seq1OldUpFcAwgnF0Dec500 = decimate(seq1OldUpFcAwgnF0Dec500,Decs(j),64,<span class="string">'fir'</span>);<span class="comment">% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+    seq1OldUpFcRayF0Dec500 = decimate(seq1OldUpFcRayF0Dec500,Decs(j),64,<span class="string">'fir'</span>);<span class="comment">% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+    seq3UpFcAwgnF0Dec500 = decimate(seq3UpFcAwgnF0Dec500,Decs(j),64,<span class="string">'fir'</span>);<span class="comment">% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+    seq3UpFcRayF0Dec500 = decimate(seq3UpFcRayF0Dec500,Decs(j),64,<span class="string">'fir'</span>);<span class="comment">% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+<span class="keyword">end</span>
+<span class="comment">% seq1UpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq1UpFcAwgnF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+<span class="comment">% seq1UpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq1UpFcRayF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+<span class="comment">% seq1OldUpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq1OldUpFcAwgnF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+<span class="comment">% seq1OldUpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq1OldUpFcRayF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+
+<span class="keyword">if</span> (Decs(end)~=2)
+    display(<span class="string">'Last decimation factor is not 2!!! Exit.'</span>);
+    <span class="keyword">return</span>;
+<span class="keyword">end</span>
+seq1UpFcAwgnF0Dec500Lpf=seq1UpFcAwgnF0Dec500;<span class="comment">%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcAwgnF0Dec500);%&#1092;&#1080;&#1083;&#1100;&#1090;&#1088;&#1072;&#1094;&#1080;&#1103; &#1076;&#1083;&#1103; &#1080;&#1090;&#1086;&#1075;&#1086;&#1074;&#1086;&#1081; &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1080;</span>
+seq1UpFcRayF0Dec500Lpf = seq1UpFcRayF0Dec500;<span class="comment">%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcRayF0Dec500);% &#1092;&#1080;&#1083;&#1100;&#1090;&#1088;&#1072;&#1094;&#1080;&#1103; &#1076;&#1083;&#1103; &#1080;&#1090;&#1086;&#1075;&#1086;&#1074;&#1086;&#1081; &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1080;</span>
+seq1OldUpFcAwgnF0Dec500Lpf=seq1OldUpFcAwgnF0Dec500;<span class="comment">%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcAwgnF0Dec500);%&#1092;&#1080;&#1083;&#1100;&#1090;&#1088;&#1072;&#1094;&#1080;&#1103; &#1076;&#1083;&#1103; &#1080;&#1090;&#1086;&#1075;&#1086;&#1074;&#1086;&#1081; &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1080;</span>
+seq1OldUpFcRayF0Dec500Lpf = seq1OldUpFcRayF0Dec500;<span class="comment">%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcRayF0Dec500);% &#1092;&#1080;&#1083;&#1100;&#1090;&#1088;&#1072;&#1094;&#1080;&#1103; &#1076;&#1083;&#1103; &#1080;&#1090;&#1086;&#1075;&#1086;&#1074;&#1086;&#1081; &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1080;</span>
+
+seq1UpFcAwgnF0Dec500LpfFs1 = decimate(seq1UpFcAwgnF0Dec500Lpf,2,128,<span class="string">'fir'</span>); <span class="comment">% &#1080;&#1090;&#1086;&#1075;&#1086;&#1074;&#1072;&#1103; &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 2&#1088;&#1072;&#1079;&#1072;, &#1076;&#1086; &#1080;&#1079;&#1085;&#1072;&#1095;&#1072;&#1083;&#1100;&#1085;&#1086;&#1081; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1099;</span>
+seq1UpFcRayF0Dec500LpfFs1 = decimate(seq1UpFcRayF0Dec500Lpf,2,128,<span class="string">'fir'</span>); <span class="comment">% &#1080;&#1090;&#1086;&#1075;&#1086;&#1074;&#1072;&#1103; &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 2&#1088;&#1072;&#1079;&#1072;, &#1076;&#1086; &#1080;&#1079;&#1085;&#1072;&#1095;&#1072;&#1083;&#1100;&#1085;&#1086;&#1081; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1099;</span>
+seq1OldUpFcAwgnF0Dec500LpfFs1 = decimate(seq1OldUpFcAwgnF0Dec500Lpf,2,128,<span class="string">'fir'</span>); <span class="comment">% &#1080;&#1090;&#1086;&#1075;&#1086;&#1074;&#1072;&#1103; &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 2&#1088;&#1072;&#1079;&#1072;, &#1076;&#1086; &#1080;&#1079;&#1085;&#1072;&#1095;&#1072;&#1083;&#1100;&#1085;&#1086;&#1081; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1099;</span>
+seq1OldUpFcRayF0Dec500LpfFs1 = decimate(seq1OldUpFcRayF0Dec500Lpf,2,128,<span class="string">'fir'</span>); <span class="comment">% &#1080;&#1090;&#1086;&#1075;&#1086;&#1074;&#1072;&#1103; &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 2&#1088;&#1072;&#1079;&#1072;, &#1076;&#1086; &#1080;&#1079;&#1085;&#1072;&#1095;&#1072;&#1083;&#1100;&#1085;&#1086;&#1081; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1099;</span>
+
+<span class="comment">% seq3UpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq3UpFcAwgnF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+<span class="comment">% seq3UpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq3UpFcRayF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+seq3UpFcAwgnF0Dec500Lpf=seq3UpFcAwgnF0Dec500;<span class="comment">%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcAwgnF0Dec500);%&#1092;&#1080;&#1083;&#1100;&#1090;&#1088;&#1072;&#1094;&#1080;&#1103; &#1076;&#1083;&#1103; &#1080;&#1090;&#1086;&#1075;&#1086;&#1074;&#1086;&#1081; &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1080;</span>
+seq3UpFcRayF0Dec500Lpf = seq3UpFcRayF0Dec500;<span class="comment">%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcRayF0Dec500);% &#1092;&#1080;&#1083;&#1100;&#1090;&#1088;&#1072;&#1094;&#1080;&#1103; &#1076;&#1083;&#1103; &#1080;&#1090;&#1086;&#1075;&#1086;&#1074;&#1086;&#1081; &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1080;</span>
+seq3UpFcAwgnF0Dec500LpfFs1 = decimate(seq3UpFcAwgnF0Dec500Lpf,2,128,<span class="string">'fir'</span>); <span class="comment">% &#1080;&#1090;&#1086;&#1075;&#1086;&#1074;&#1072;&#1103; &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 2&#1088;&#1072;&#1079;&#1072;, &#1076;&#1086; &#1080;&#1079;&#1085;&#1072;&#1095;&#1072;&#1083;&#1100;&#1085;&#1086;&#1081; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1099;</span>
+seq3UpFcRayF0Dec500LpfFs1 = decimate(seq3UpFcRayF0Dec500Lpf,2,128,<span class="string">'fir'</span>); <span class="comment">% &#1080;&#1090;&#1086;&#1075;&#1086;&#1074;&#1072;&#1103; &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 2&#1088;&#1072;&#1079;&#1072;, &#1076;&#1086; &#1080;&#1079;&#1085;&#1072;&#1095;&#1072;&#1083;&#1100;&#1085;&#1086;&#1081; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1099;</span>
+
+
+<span class="comment">% RespOfFind:</span>
+<span class="comment">% 1 - Schmild new AWGN, 2 - Schmidl new Rayleygh</span>
+<span class="comment">% 3 - Park AWGN, 4 - Park Rayleygh</span>
+<span class="comment">% 5 - Minn AWGN, 6 - Minn Rayleygh</span>
+<span class="comment">% 7 - Schmild old AWGN, 8 - Schmidl old Rayleygh</span>
+
+
+<span class="comment">% for j=N/2+1:N/2+2*Nnoise</span>
+<span class="comment">%     P1 = 0;R1 = 0;</span>
+<span class="comment">%     for k = 0:N/2</span>
+<span class="comment">%         P1 = P1 + seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq1UpFcAwgnF0Dec500LpfFs1(1,j-k)+ seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1+N+fix(CP*N))*seq1UpFcAwgnF0Dec500LpfFs1(1,j-k+N+fix(CP*N));</span>
+<span class="comment">%         R1 = R1 + power(abs(seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1)),2)+ power(abs(seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1+N+fix(CP*N))),2);</span>
+<span class="comment">% %         abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);</span>
+<span class="comment">%     end</span>
+<span class="comment">%     RespOfFind(1,j-N/2) = power(abs(P1),2)/power(R1,2);</span>
+<span class="comment">% end</span>
+<span class="comment">% for j=N/2+1:N/2+2*Nnoise</span>
+<span class="comment">%     P1 = 0;R1 = 0;</span>
+<span class="comment">%     for k = 0:N/2</span>
+<span class="comment">%         P1 = P1 + seq1UpFcRayF0Dec500LpfFs1(1,j+k-1)*seq1UpFcRayF0Dec500LpfFs1(1,j-k)+ seq1UpFcRayF0Dec500LpfFs1(1,j+k-1+N+fix(CP*N))*seq1UpFcRayF0Dec500LpfFs1(1,j-k+N+fix(CP*N));</span>
+<span class="comment">%         R1 = R1 + power(abs(seq1UpFcRayF0Dec500LpfFs1(1,j+k-1)),2)+ power(abs(seq1UpFcRayF0Dec500LpfFs1(1,j+k-1+N+fix(CP*N))),2);</span>
+<span class="comment">% %         abs(seq3UpFcRayF0Dec500LpfFs1(1,j+k-1)*seq3UpFcRayF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);</span>
+<span class="comment">%     end</span>
+<span class="comment">%     RespOfFind(2,j-N/2) = power(abs(P1),2)/power(R1,2);</span>
+<span class="comment">% end</span>
+
+<span class="keyword">for</span> j=N/2+1:N/2+2*Nnoise
+    P1 = 0;R1 = 0;
+    <span class="keyword">for</span> k = 0:N/2
+        P1 = P1 + seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k);
+        R1 = R1 + power(abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)),2);
+<span class="comment">%         abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);</span>
+    <span class="keyword">end</span>
+    RespOfFind(1,j-N/2) = power(abs(P1),2)/power(R1,2);
+<span class="keyword">end</span>
+<span class="keyword">for</span> j=N/2+1:N/2+2*Nnoise
+    P1 = 0;R1 = 0;
+    <span class="keyword">for</span> k = 0:N/2
+        P1 = P1 + seq3UpFcRayF0Dec500LpfFs1(1,j+k-1)*seq3UpFcRayF0Dec500LpfFs1(1,j-k);
+        R1 = R1 + power(abs(seq3UpFcRayF0Dec500LpfFs1(1,j+k-1)),2);
+<span class="comment">%         abs(seq3UpFcRayF0Dec500LpfFs1(1,j+k-1)*seq3UpFcRayF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);</span>
+    <span class="keyword">end</span>
+    RespOfFind(2,j-N/2) = power(abs(P1),2)/power(R1,2);
+<span class="keyword">end</span>
+
+
+
+
+
+
+
+
+<span class="keyword">for</span> j=N/2+1:N/2+2*Nnoise
+    P1 = 0;R1 = 0;
+    <span class="keyword">for</span> k = 0:N/2
+        P1 = P1 + seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k);
+        R1 = R1 + power(abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)),2);
+<span class="comment">%         abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);</span>
+    <span class="keyword">end</span>
+    RespOfFind(3,j-N/2) = power(abs(P1),2)/power(R1,2);
+<span class="keyword">end</span>
+<span class="keyword">for</span> j=N/2+1:N/2+2*Nnoise
+    P1 = 0;R1 = 0;
+    <span class="keyword">for</span> k = 0:N/2
+        P1 = P1 + seq3UpFcRayF0Dec500LpfFs1(1,j+k-1)*seq3UpFcRayF0Dec500LpfFs1(1,j-k);
+        R1 = R1 + power(abs(seq3UpFcRayF0Dec500LpfFs1(1,j+k-1)),2);
+<span class="comment">%         abs(seq3UpFcRayF0Dec500LpfFs1(1,j+k-1)*seq3UpFcRayF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);</span>
+    <span class="keyword">end</span>
+    RespOfFind(4,j-N/2) = power(abs(P1),2)/power(R1,2);
+<span class="keyword">end</span>
+<span class="comment">%THE SAME SEQUENCE FOR SYNCHRO BOTH SCHMIDL!!!</span>
+<span class="keyword">for</span> j=1:2*Nnoise <span class="comment">%???? ?????? (?????????????) ??? ???? ??????</span>
+    P1 = sum(conj(seq1OldUpFcAwgnF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1OldUpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));
+    R1 = sum(power(abs(seq1OldUpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));
+    RespOfFind(7,j) = power(abs(P1),2)/power(R1,2); <span class="comment">% ?????? ?? ?????</span>
+<span class="keyword">end</span>
+<span class="keyword">for</span> j=1:2*Nnoise <span class="comment">%???? ?????? (?????????????) ??? ???? ??????</span>
+    P1 = sum(conj(seq1OldUpFcRayF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1OldUpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));
+    R1 = sum(power(abs(seq1OldUpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));
+    RespOfFind(8,j) = power(abs(P1),2)/power(R1,2); <span class="comment">% ?????? ?? ?????</span>
+<span class="keyword">end</span>
+<span class="comment">% for j=1:2*Nnoise %???? ?????? (?????????????) ??? ???? ??????</span>
+<span class="comment">%     P1 = sum(conj(seq1OldUpFcAwgnF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1OldUpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));</span>
+<span class="comment">%     R1 = sum(power(abs(seq1OldUpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));</span>
+<span class="comment">%     RespOfFind(7,j) = power(abs(P1),2)/power(R1,2); % ?????? ?? ?????</span>
+<span class="comment">% end</span>
+<span class="comment">% for j=1:2*Nnoise %???? ?????? (?????????????) ??? ???? ??????</span>
+<span class="comment">%     P1 = sum(conj(seq1OldUpFcRayF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1OldUpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));</span>
+<span class="comment">%     R1 = sum(power(abs(seq1OldUpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));</span>
+<span class="comment">%     RespOfFind(8,j) = power(abs(P1),2)/power(R1,2); % ?????? ?? ?????</span>
+<span class="comment">% end</span>
+
+
+<span class="keyword">if</span> FullTimingSyncSim
+    seq2UpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq2UpFcAwgnF0,5,64,<span class="string">'fir'</span>),5,64,<span class="string">'fir'</span>),5,64,<span class="string">'fir'</span>),4,64,<span class="string">'fir'</span>);<span class="comment">% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+    seq2UpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq2UpFcRayF0,5,64,<span class="string">'fir'</span>),5,64,<span class="string">'fir'</span>),5,64,<span class="string">'fir'</span>),4,64,<span class="string">'fir'</span>);<span class="comment">% &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 500&#1088;&#1072;&#1079; (&#1074;&#1089;&#1077;&#1075;&#1086; &#1073;&#1099;&#1083;&#1086; 1000)</span>
+    seq2UpFcAwgnF0Dec500Lpf=seq2UpFcAwgnF0Dec500;<span class="comment">%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcAwgnF0Dec500);%&#1092;&#1080;&#1083;&#1100;&#1090;&#1088;&#1072;&#1094;&#1080;&#1103; &#1076;&#1083;&#1103; &#1080;&#1090;&#1086;&#1075;&#1086;&#1074;&#1086;&#1081; &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1080;</span>
+    seq2UpFcRayF0Dec500Lpf = seq2UpFcRayF0Dec500;<span class="comment">%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcRayF0Dec500);% &#1092;&#1080;&#1083;&#1100;&#1090;&#1088;&#1072;&#1094;&#1080;&#1103; &#1076;&#1083;&#1103; &#1080;&#1090;&#1086;&#1075;&#1086;&#1074;&#1086;&#1081; &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1080;</span>
+    seq2UpFcAwgnF0Dec500LpfFs1 = decimate(seq2UpFcAwgnF0Dec500Lpf,2,128,<span class="string">'fir'</span>); <span class="comment">% &#1080;&#1090;&#1086;&#1075;&#1086;&#1074;&#1072;&#1103; &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 2&#1088;&#1072;&#1079;&#1072;, &#1076;&#1086; &#1080;&#1079;&#1085;&#1072;&#1095;&#1072;&#1083;&#1100;&#1085;&#1086;&#1081; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1099;</span>
+    seq2UpFcRayF0Dec500LpfFs1 = decimate(seq2UpFcRayF0Dec500Lpf,2,128,<span class="string">'fir'</span>); <span class="comment">% &#1080;&#1090;&#1086;&#1075;&#1086;&#1074;&#1072;&#1103; &#1076;&#1077;&#1094;&#1080;&#1084;&#1072;&#1094;&#1080;&#1103; &#1074; 2&#1088;&#1072;&#1079;&#1072;, &#1076;&#1086; &#1080;&#1079;&#1085;&#1072;&#1095;&#1072;&#1083;&#1100;&#1085;&#1086;&#1081; &#1095;&#1072;&#1089;&#1090;&#1086;&#1090;&#1099;</span>
+    <span class="keyword">for</span> j=1:2*Nnoise
+        P1 = sum(conj(seq2UpFcAwgnF0Dec500LpfFs1(1,j:j+N/4-1)).*seq2UpFcAwgnF0Dec500LpfFs1(1,j+N/4:j+N/4-1+N/4)) <span class="keyword">...</span>
+            + sum(conj(seq2UpFcAwgnF0Dec500LpfFs1(1,j+2*N/4:j+N/4-1+2*N/4)).*seq2UpFcAwgnF0Dec500LpfFs1(1,j+N/4+2*N/4:j+N/4-1+N/4+2*N/4));
+        R1 = sum(power(abs(seq2UpFcAwgnF0Dec500LpfFs1(1,j+N/4:j+N/4-1+N/4)),2)) + sum(power(abs(seq2UpFcAwgnF0Dec500LpfFs1(1,j+N/4+2*N/4:j+N/4-1+N/4+2*N/4)),2));
+<span class="comment">%         sum(abs(conj(seq2UpFcAwgnF0Dec500LpfFs1(1,j:j+N/4-1)).*seq2UpFcAwgnF0Dec500LpfFs1(1,j+N/4:j+N/4-1+N/4))) ...</span>
+<span class="comment">%             + sum(abs(conj(seq2UpFcAwgnF0Dec500LpfFs1(1,j+2*N/4:j+N/4-1+2*N/4)).*seq2UpFcAwgnF0Dec500LpfFs1(1,j+N/4+2*N/4:j+N/4-1+N/4+2*N/4))) ;</span>
+        <span class="comment">%</span>
+        RespOfFind(5,j) = power(abs(P1),2)/power(R1,2);
+    <span class="keyword">end</span>
+    <span class="keyword">for</span> j=1:2*Nnoise
+        P1 = sum(conj(seq2UpFcRayF0Dec500LpfFs1(1,j:j+N/4-1)).*seq2UpFcRayF0Dec500LpfFs1(1,j+N/4:j+N/4-1+N/4)) <span class="keyword">...</span>
+            + sum(conj(seq2UpFcRayF0Dec500LpfFs1(1,j+2*N/4:j+N/4-1+2*N/4)).*seq2UpFcRayF0Dec500LpfFs1(1,j+N/4+2*N/4:j+N/4-1+N/4+2*N/4));
+        R1 = sum(power(abs(seq2UpFcRayF0Dec500LpfFs1(1,j+N/4:j+N/4-1+N/4)),2)) + sum(power(abs(seq2UpFcRayF0Dec500LpfFs1(1,j+N/4+2*N/4:j+N/4-1+N/4+2*N/4)),2));
+<span class="comment">%         sum(abs(conj(seq2UpFcRayF0Dec500LpfFs1(1,j:j+N/4-1)).*seq2UpFcRayF0Dec500LpfFs1(1,j+N/4:j+N/4-1+N/4))) ...</span>
+<span class="comment">%             + sum(abs(conj(seq2UpFcRayF0Dec500LpfFs1(1,j+2*N/4:j+N/4-1+2*N/4)).*seq2UpFcRayF0Dec500LpfFs1(1,j+N/4+2*N/4:j+N/4-1+N/4+2*N/4))) ;%</span>
+        RespOfFind(6,j) = power(abs(P1),2)/power(R1,2);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+tResp = 1:length(RespOfFind);
+ close <span class="string">all</span>;
+
+<span class="keyword">if</span> EnableGraphs
+    figure;hold <span class="string">on</span>;grid <span class="string">on</span>;<span class="comment">%&#1088;&#1080;&#1089;&#1091;&#1077;&#1084; &#1086;&#1090;&#1082;&#1083;&#1080;&#1082;&#1080; &#1074;&#1086; &#1074;&#1088;&#1077;&#1084;&#1077;&#1085;&#1080;</span>
+    plot(tResp(:)-Nnoise-1,abs(RespOfFind(1,:)),<span class="string">'--'</span>);<span class="comment">%2.2*N:end-3*N</span>
+    plot(tResp(:)-Nnoise-1,abs(RespOfFind(3,:)),<span class="string">'r'</span>);
+    plot(tResp(:)-Nnoise-1,abs(RespOfFind(7,:)),<span class="string">'g'</span>);
+    <span class="keyword">if</span> FullTimingSyncSim
+        plot(tResp(:)-Nnoise-1,abs(RespOfFind(5,:)),<span class="string">'k:'</span>);
+        legend(<span class="string">'&#1052;&#1077;&#1090;&#1086;&#1076; &#1052;&#1080;&#1085;&#1085;&#1072; &#1076;&#1083;&#1103; &#1064;&#1084;&#1080;&#1076;&#1083;&#1103;'</span>,<span class="string">'&#1052;&#1077;&#1090;&#1086;&#1076; &#1052;&#1080;&#1085;&#1085;&#1072;'</span>,<span class="string">'&#1052;&#1077;&#1090;&#1086;&#1076; &#1064;&#1084;&#1080;&#1076;&#1083;&#1103;'</span>,<span class="string">'&#1052;&#1077;&#1090;&#1086;&#1076; &#1055;&#1072;&#1088;&#1082;&#1072;'</span>);
+    <span class="keyword">else</span>
+        legend(<span class="string">'&#1052;&#1077;&#1090;&#1086;&#1076; &#1052;&#1080;&#1085;&#1085;&#1072; &#1076;&#1083;&#1103; &#1064;&#1084;&#1080;&#1076;&#1083;&#1103;'</span>,<span class="string">'&#1052;&#1077;&#1090;&#1086;&#1076; &#1052;&#1080;&#1085;&#1085;&#1072;'</span>,<span class="string">'&#1052;&#1077;&#1090;&#1086;&#1076; &#1064;&#1084;&#1080;&#1076;&#1083;&#1103;'</span>);
+    <span class="keyword">end</span>
+    xlabel(<span class="string">'&#1044;&#1080;&#1089;&#1082;&#1088;&#1077;&#1090;&#1085;&#1099;&#1077; &#1086;&#1090;&#1089;&#1095;&#1077;&#1090;&#1099;'</span>);ylabel(<span class="string">'&#1042;&#1088;&#1077;&#1084;&#1077;&#1085;&#1085;&#1072;&#1103; &#1084;&#1077;&#1090;&#1088;&#1080;&#1082;&#1072; &#1074; &#1082;&#1072;&#1085;&#1072;&#1083;&#1077; &#1089; &#1040;&#1043;&#1041;&#1064;, &#1077;&#1076;.'</span>);
+
+
+    figure;hold <span class="string">on</span>;grid <span class="string">on</span>;
+    plot(tResp(:)-Nnoise-1,abs(RespOfFind(2,:)),<span class="string">'--'</span>);<span class="comment">%2.2*N:end-3*N</span>
+    plot(tResp(:)-Nnoise-1,abs(RespOfFind(4,:)),<span class="string">'r'</span>);
+    plot(tResp(:)-Nnoise-1,abs(RespOfFind(8,:)),<span class="string">'g'</span>);
+    <span class="keyword">if</span> FullTimingSyncSim
+        plot(tResp(:)-Nnoise-1,abs(RespOfFind(6,:)),<span class="string">'k:'</span>);
+        legend(<span class="string">'&#1052;&#1077;&#1090;&#1086;&#1076; &#1052;&#1080;&#1085;&#1085;&#1072; &#1076;&#1083;&#1103; &#1064;&#1084;&#1080;&#1076;&#1083;&#1103;'</span>,<span class="string">'&#1052;&#1077;&#1090;&#1086;&#1076; &#1052;&#1080;&#1085;&#1085;&#1072;'</span>,<span class="string">'&#1052;&#1077;&#1090;&#1086;&#1076; &#1064;&#1084;&#1080;&#1076;&#1083;&#1103;'</span>,<span class="string">'&#1052;&#1077;&#1090;&#1086;&#1076; &#1055;&#1072;&#1088;&#1082;&#1072;'</span>);
+    <span class="keyword">else</span>
+        legend(<span class="string">'&#1052;&#1077;&#1090;&#1086;&#1076; &#1052;&#1080;&#1085;&#1085;&#1072; &#1076;&#1083;&#1103; &#1064;&#1084;&#1080;&#1076;&#1083;&#1103;'</span>,<span class="string">'&#1052;&#1077;&#1090;&#1086;&#1076; &#1052;&#1080;&#1085;&#1085;&#1072;'</span>,<span class="string">'&#1052;&#1077;&#1090;&#1086;&#1076; &#1064;&#1084;&#1080;&#1076;&#1083;&#1103;'</span>);
+    <span class="keyword">end</span>
+    xlabel(<span class="string">'&#1044;&#1080;&#1089;&#1082;&#1088;&#1077;&#1090;&#1085;&#1099;&#1077; &#1086;&#1090;&#1089;&#1095;&#1077;&#1090;&#1099;'</span>);ylabel(<span class="string">'&#1042;&#1088;&#1077;&#1084;&#1077;&#1085;&#1085;&#1072;&#1103; &#1084;&#1077;&#1090;&#1088;&#1080;&#1082;&#1072; &#1074; &#1056;&#1101;&#1083;&#1077;&#1077;&#1074;&#1089;&#1082;&#1086;&#1084; &#1082;&#1072;&#1085;&#1072;&#1083;&#1077;, &#1077;&#1076;.'</span>);
+    drawnow;
+<span class="keyword">end</span>
+<span class="comment">%</span>
+maxAwgnSchOld = 0;
+maxAwgnIndSchOld = 0;
+maxRaySchOld = 0;
+maxRayIndSchOld = 0;
+curMaxOld = 0;
+<span class="keyword">for</span> j=1:length(tResp)-103
+    curMaxOld = sum(RespOfFind(7,j:j+102));
+    <span class="keyword">if</span> curMaxOld&gt;maxAwgnSchOld
+        maxAwgnSchOld = curMaxOld;
+        maxAwgnIndSchOld = j;
+    <span class="keyword">end</span>
+    curMaxOld = sum(RespOfFind(8,j:j+102));
+    <span class="keyword">if</span> curMaxOld&gt;maxRaySchOld
+        maxRaySchOld = curMaxOld;
+        maxRayIndSchOld = j;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="comment">%</span>
+maxAwgnSch = 0;
+maxAwgnIndSch = 0;
+maxRaySch = 0;
+maxRayIndSch = 0;
+curMax = 0;
+<span class="comment">% maxAwgnSchOld =  Nnoise+1; %DELETE IF FINDING SYNCHRO!!!</span>
+<span class="comment">% maxRaySchOld =  Nnoise+1; %DELETE IF FINDING SYNCHRO!!!</span>
+maxAwgnIndSch = Nnoise+1;<span class="comment">%find(RespOfFind(1,:)==max(RespOfFind(1,:)));</span>
+maxRayIndSch = Nnoise+1;<span class="comment">%find(RespOfFind(2,:)==max(RespOfFind(2,:)));</span>
+maxAwgnIndPro = Nnoise+1;<span class="comment">%find(RespOfFind(3,:)==max(RespOfFind(3,:)));</span>
+maxRayIndPro = Nnoise+1;<span class="comment">%find(RespOfFind(4,:)==max(RespOfFind(4,:)));</span>
+<span class="comment">% maxAwgnIndSch = find(RespOfFind(1,:)==max(RespOfFind(1,:)));</span>
+<span class="comment">% maxRayIndSch = find(RespOfFind(2,:)==max(RespOfFind(2,:)));</span>
+<span class="comment">% maxAwgnIndPro =find(RespOfFind(3,:)==max(RespOfFind(3,:)));</span>
+<span class="comment">% maxRayIndPro = find(RespOfFind(4,:)==max(RespOfFind(4,:)));</span>
+
+<span class="keyword">if</span> EnableOutput
+    fprintf(<span class="string">'Time synchronization error Schmidl new %d %d, proposed %d %d, Schmidl old %d %d\n'</span>,maxAwgnIndSch-Nnoise-1,maxRayIndSch-Nnoise-1,maxAwgnIndPro-Nnoise-1,<span class="keyword">...</span>
+        maxRayIndPro-Nnoise-1,maxAwgnIndSchOld-Nnoise-1,maxRayIndSchOld-Nnoise-1);
+<span class="keyword">end</span>
+<span class="keyword">if</span> (maxAwgnIndPro-Nnoise-1~=0 || maxRayIndPro-Nnoise-1~=0) &amp;&amp; EnableOutputError
+    fprintf(<span class="string">'ERROR, Proposed!!!\n'</span>);
+<span class="comment">%     maxAwgnIndPro</span>
+<span class="comment">%     maxRayIndPro</span>
+    ProposedError = 1;
+<span class="keyword">end</span>
+
+<span class="comment">%</span>
+
+<span class="comment">% Vk = sqrt(2).*frs2(1:2:end)./frs;%&#1074;&#1089;&#1087;&#1086;&#1084;&#1086;&#1075;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1072;&#1103; &#1087;&#1086;&#1089;&#1083;&#1077;&#1076;&#1086;&#1074;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1089;&#1090;&#1100;</span>
+<span class="comment">% VkOld = sqrt(2).*frs2Old(1:2:end)./frs;</span>
+<span class="comment">% Vk1 = frs2(1:2:end)./frs;%&#1074;&#1089;&#1087;&#1086;&#1084;&#1086;&#1075;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1072;&#1103; &#1087;&#1086;&#1089;&#1083;&#1077;&#1076;&#1086;&#1074;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1089;&#1090;&#1100;</span>
+<span class="comment">% Vk2 = frs2(2:2:end)./frs;</span>
+VkOld = frs2Old(1:2:end)./frs;
+<span class="comment">% figure;plot(abs(seq1));</span>
+t1 = (1:length(AA(1,:)));
+t12 = (1:length(AA_B(1,:)));
+
+<span class="comment">% seq1df(1,:) = seq1(1,3*N+1:3*N+N).*exp(1i*(2*pi*FreqOffset*t1/N));%&#1057;&#1085;&#1072;&#1095;&#1072;&#1083;&#1072; &#1073;&#1088;&#1072;&#1083; &#1090;&#1086;&#1083;&#1100;&#1082;&#1086; &#1085;&#1077;&#1080;&#1089;&#1082;&#1072;&#1078;&#1077;&#1085;&#1085;&#1091;&#1102; &#1087;&#1086;&#1089;&#1083;&#1077;&#1076;&#1086;&#1074;&#1072;&#1090;&#1077;&#1083;&#1100;&#1085;&#1086;&#1089;&#1090;&#1100;, &#1089;&#1076;&#1074;&#1080;&#1085;&#1091;&#1090;&#1091;&#1102;</span>
+<span class="comment">% seq12df(1,:) = seq1(1,3*N+1:3*N+N+N+fix(CP*N)).*exp(1i*(2*pi*FreqOffset*t12/N));</span>
+</pre><pre class="codeoutput error">Error using FreqSynchroForArticle_withRF (line 97)
+Not enough input arguments.
+</pre><h2>Proposed<a name="3"></a></h2><pre class="codeinput">seq1df(1,:) = seq3UpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndPro:maxAwgnIndPro+N-1);<span class="comment">%&#1058;&#1077;&#1087;&#1077;&#1088;&#1100; &#1091;&#1078;&#1077; &#1074;&#1089;&#1077; &#1087;&#1086; &#1095;&#1077;&#1089;&#1090;&#1085;&#1086;&#1084;&#1091;</span>
+seq12df(1,:) = seq3UpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndPro:maxAwgnIndPro-1+N+N+fix(CP*N));<span class="comment">%&#1040;&#1043;&#1041;&#1064;</span>
+
+seq1df(2,:) = seq3UpFcRayF0Dec500LpfFs1(1,maxRayIndPro:maxRayIndPro-1+N);<span class="comment">%&#1058;&#1077;&#1087;&#1077;&#1088;&#1100; &#1091;&#1078;&#1077; &#1074;&#1089;&#1077; &#1087;&#1086; &#1095;&#1077;&#1089;&#1090;&#1085;&#1086;&#1084;&#1091;</span>
+seq12df(2,:) = seq3UpFcRayF0Dec500LpfFs1(1,maxRayIndPro:maxRayIndPro-1+N+N+fix(CP*N));<span class="comment">%&#1056;&#1069;&#1051;&#1045;&#1049;</span>
+
+<span class="comment">% FkAwgn = fft(conj(AA).*seq1df(1,:),N);</span>
+<span class="comment">% FkAwgn = fft(conj(B).*seq12df(1,N+fix(CP*N)+1:N+fix(CP*N)+N),N);</span>
+FkAwgn = fft(conj(G3).*seq12df(1,1+N+fix(CP*N):N+N+fix(CP*N)),N);
+FkAwgn = [FkAwgn(N/2+1:end),FkAwgn(1:N/2)];
+kmax =  find(abs(FkAwgn)==max(abs(FkAwgn)));
+FcoarseAwgn = kmax-N/2;
+<span class="keyword">if</span> kmax&gt;=2 &amp;&amp; kmax &lt;=1023
+    <span class="keyword">if</span> abs(FkAwgn(kmax-1))&lt;= abs(FkAwgn(kmax+1))
+        alp = 1;
+    <span class="keyword">else</span>
+        alp = -1;
+    <span class="keyword">end</span>
+    FfineAwgn = alp/(abs(FkAwgn(kmax))/abs(FkAwgn(kmax+alp))+1);
+<span class="keyword">else</span>
+    FfineAwgn = 0;
+<span class="keyword">end</span>
+
+<span class="comment">% FkRay = fft(conj(AA).*seq1df(2,:),N);</span>
+<span class="comment">% FkRay = fft(conj(B).*seq12df(2,N+fix(CP*N)+1:N+fix(CP*N)+N),N);</span>
+FkRay = fft(conj(G3).*seq12df(2,1+N+fix(CP*N):N+N+fix(CP*N)),N);
+FkRay = [FkRay(N/2+1:end),FkRay(1:N/2)];
+kmax =  find(abs(FkRay)==max(abs(FkRay)));
+FcoarseRay = kmax-N/2;
+<span class="keyword">if</span> kmax&gt;=2 &amp;&amp; kmax &lt;=1023
+    <span class="keyword">if</span> abs(FkRay(kmax-1))&lt;= abs(FkRay(kmax+1))
+        alp = 1;
+    <span class="keyword">else</span>
+        alp = -1;
+    <span class="keyword">end</span>
+    FfineRay = alp/(abs(FkRay(kmax))/abs(FkRay(kmax+alp))+1);
+<span class="keyword">else</span>
+    FfineRay = 0;
+<span class="keyword">end</span>
+FdProposedAwgn = FcoarseAwgn + FfineAwgn - 1;
+FdProposedRay = FcoarseRay + FfineRay - 1;
+
+
+
+<span class="comment">% Schmidl new ___________________________________________________</span>
+seq1df(1,:) = seq3UpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndSch:maxAwgnIndSch+N-1);<span class="comment">%&#1058;&#1077;&#1087;&#1077;&#1088;&#1100; &#1091;&#1078;&#1077; &#1074;&#1089;&#1077; &#1087;&#1086; &#1095;&#1077;&#1089;&#1090;&#1085;&#1086;&#1084;&#1091;</span>
+seq12df(1,:) = seq3UpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndSch:maxAwgnIndSch-1+N+N+fix(CP*N));<span class="comment">%&#1040;&#1043;&#1041;&#1064;</span>
+
+seq1df(2,:) = seq3UpFcRayF0Dec500LpfFs1(1,maxRayIndSch:maxRayIndSch-1+N);<span class="comment">%&#1058;&#1077;&#1087;&#1077;&#1088;&#1100; &#1091;&#1078;&#1077; &#1074;&#1089;&#1077; &#1087;&#1086; &#1095;&#1077;&#1089;&#1090;&#1085;&#1086;&#1084;&#1091;</span>
+seq12df(2,:) = seq3UpFcRayF0Dec500LpfFs1(1,maxRayIndSch:maxRayIndSch-1+N+N+fix(CP*N));<span class="comment">%&#1056;&#1069;&#1051;&#1045;&#1049;</span>
+
+
+
+FkAwgn = fft(conj(G3).*seq12df(1,1+N+fix(CP*N):N+N+fix(CP*N)),N);
+FkAwgn = [FkAwgn(N/2+1:end),FkAwgn(1:N/2)];
+kmax =  find(abs(FkAwgn)==max(abs(FkAwgn)));
+<span class="comment">% Fk2sum = abs(FkAwgn(1:end-1))+abs(FkAwgn(2:end));</span>
+<span class="comment">% kmax = find((Fk2sum)==max((Fk2sum)));</span>
+<span class="comment">% if Fk2sum(kmax+1)&gt;Fk2sum(kmax)</span>
+<span class="comment">%     kmax = kmax+1;</span>
+<span class="comment">% end</span>
+
+
+FcoarseAwgn = kmax-N/2;
+<span class="keyword">if</span> kmax&gt;=2 &amp;&amp; kmax &lt;=1023
+    <span class="keyword">if</span> abs(FkAwgn(kmax-1))&lt;= abs(FkAwgn(kmax+1))
+        alp = 1;
+    <span class="keyword">else</span>
+        alp = -1;
+    <span class="keyword">end</span>
+    FfineAwgn = alp/(abs(FkAwgn(kmax))/abs(FkAwgn(kmax+alp))+1);
+<span class="keyword">else</span>
+    FfineAwgn = 0;
+<span class="keyword">end</span>
+
+FdSchmidlAwgn = FcoarseAwgn + FfineAwgn - 1;
+fmax1 = ((FcoarseAwgn-1-alp)/N*Nfft);
+fmax2 =  ((FcoarseAwgn-1+alp)/N*Nfft);
+kk = 1;
+ts = conj(G3).*seq12df(1,1+N+fix(CP*N):N+N+fix(CP*N)).*window(@hamming,N).';<span class="comment">%hamming</span>
+<span class="keyword">for</span> jj = min(fmax1,fmax2)-dev:max(fmax1,fmax2)+dev
+    FHRAll(kk) = sum(ts.*exp(-1i*2*pi/Nfft*jj*(0:N-1)));
+    kk=kk+1;
+<span class="keyword">end</span>
+FHR = FHRAll(dev+1:end-dev);
+indm = find(abs(FHR(1:end)) == max(abs(FHR)))+dev;
+indmm = sum(sqrt(abs(FHRAll(indm-dev:indm+dev))).*(indm-dev:indm+dev)) / sum(sqrt(abs(FHRAll(indm-dev:indm+dev))));
+FdSchmidlAwgn = FcoarseAwgn-2 + (indmm-1 -dev)*N/Nfft;
+
+
+FkRay = fft(conj(G3).*seq12df(2,1+N+fix(CP*N):N+N+fix(CP*N)),N);
+FkRay = [FkRay(N/2+1:end),FkRay(1:N/2)];
+kmax =  find(abs(FkRay)==max(abs(FkRay)));
+<span class="comment">% Fk2sum = abs(FkRay(1:end-1))+abs(FkRay(2:end));</span>
+<span class="comment">% kmax = find((Fk2sum)==max((Fk2sum)));</span>
+<span class="comment">% if Fk2sum(kmax+1)&gt;Fk2sum(kmax)</span>
+<span class="comment">%     kmax = kmax+1;</span>
+<span class="comment">% end</span>
+FcoarseRay = kmax-N/2;
+<span class="keyword">if</span> kmax&gt;=2 &amp;&amp; kmax &lt;=1023
+    <span class="keyword">if</span> abs(FkRay(kmax-1))&lt;= abs(FkRay(kmax+1))
+        alp = 1;
+    <span class="keyword">else</span>
+        alp = -1;
+    <span class="keyword">end</span>
+    FfineRay = alp/(abs(FkRay(kmax))/abs(FkRay(kmax+alp))+1);
+<span class="keyword">else</span>
+    FfineRay = 0;
+<span class="keyword">end</span>
+
+FdSchmidlRay = FcoarseRay + FfineRay - 1;
+fmax1 = ((FcoarseRay-1-alp)/N*Nfft);
+fmax2 =  ((FcoarseRay-1+alp)/N*Nfft);
+kk = 1;
+ts = conj(G3).*seq12df(2,1+N+fix(CP*N):N+N+fix(CP*N)).*window(@hamming,N).';
+<span class="keyword">for</span> jj = min(fmax1,fmax2)-dev:max(fmax1,fmax2)+dev
+    FHRAll(kk) = sum(ts.*exp(-1i*2*pi/Nfft*jj*(0:N-1)));
+    kk=kk+1;
+<span class="keyword">end</span>
+FHR = FHRAll(dev+1:end-dev);
+indm = find(abs(FHR(1:end)) == max(abs(FHR)))+dev;
+indmm = sum(abs(FHRAll(indm-dev:indm+dev)).*(indm-dev:indm+dev)) / sum(abs(FHRAll(indm-dev:indm+dev)));
+FdSchmidlRay = FcoarseRay-2 + (indmm-1-dev)*N/Nfft ;
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">% P1 = sum(conj(seq1df(1,1:N/2)).*seq1df(1,1+N/2:N));</span>
+<span class="comment">% phi = angle(P1);</span>
+<span class="comment">% feAwgn = phi/pi;</span>
+<span class="comment">% Corr = exp(-1i*2*phi*t12/N);</span>
+<span class="comment">% seq12dfCorr = seq12df(1,:).*Corr;</span>
+<span class="comment">% F1 = fft(seq12dfCorr(1:N));F1 = [F1(N/2+1:end),F1(1:N/2)];</span>
+<span class="comment">% F2 = fft(seq12dfCorr(N+fix(CP*N)+1:end));F2 = [F2(N/2+1:end),F2(1:N/2)];</span>
+<span class="comment">% F1F2 = conj(F1).*[ F2(2:end),F2(1) ];</span>
+<span class="comment">% F1F2first = conj(F1).*F2;</span>
+<span class="comment">% % B(1) = power(abs(sum(F1F2.*conj(frs(1:2:end)))),2)/2/power(sum(power(F2,2)),2);</span>
+<span class="comment">% for i = 1:N/2</span>
+<span class="comment">%     F1F2sh = circshift(F1F2,[0,2*(i-1)]);</span>
+<span class="comment">%     F1F2shfirst = circshift(F1F2first,[0,2*(i-1)]);</span>
+<span class="comment">%     BgRay(i) = power(abs(sum(  F1F2sh(1:2:end).*  conj(Vk2)      )),2)/2/power(sum(power(abs(F2),2)),2)+...</span>
+<span class="comment">%         power(abs(sum(  F1F2shfirst(1:2:end).*  conj(Vk1)      )),2)/2/power(sum(power(abs(F2),2)),2);</span>
+<span class="comment">% end</span>
+<span class="comment">% P1 = sum(conj(seq1df(2,1:N/2)).*seq1df(2,1+N/2:N));</span>
+<span class="comment">% phi = angle(P1);</span>
+<span class="comment">% feRay = phi/pi;</span>
+<span class="comment">% Corr = exp(-1i*2*phi*t12/N);</span>
+<span class="comment">% seq12dfCorr = seq12df(2,:).*Corr;</span>
+<span class="comment">% F1 = fft(seq12dfCorr(1:N));F1 = [F1(N/2+1:end),F1(1:N/2)];</span>
+<span class="comment">% F2 = fft(seq12dfCorr(N+fix(CP*N)+1:end));F2 = [F2(N/2+1:end),F2(1:N/2)];</span>
+<span class="comment">% F1F2 = conj(F1).*[ F2(2:end),F2(1) ];</span>
+<span class="comment">% F1F2first = conj(F1).*F2;</span>
+<span class="comment">% % B(1) = power(abs(sum(F1F2.*conj(frs(1:2:end)))),2)/2/power(sum(power(F2,2)),2);</span>
+<span class="comment">% for i = 1:N/2</span>
+<span class="comment">%     F1F2sh = circshift(F1F2,[0,2*(i-1)]);</span>
+<span class="comment">%     F1F2shfirst = circshift(F1F2first,[0,2*(i-1)]);</span>
+<span class="comment">%     BgAwgn(i) = power(abs(sum(  F1F2sh(1:2:end).*  conj(Vk2)      )),2)/2/power(sum(power(abs(F2),2)),2)+...</span>
+<span class="comment">%         power(abs(sum(  F1F2shfirst(1:2:end).*  conj(Vk1)      )),2)/2/power(sum(power(abs(F2),2)),2);</span>
+<span class="comment">% end</span>
+<span class="comment">% FdSchmidlAwgn = (1+256-find(BgAwgn==max(BgAwgn)))*2 +feAwgn;% 2*(513-(find(BgAwgn==max(BgAwgn)))) + feAwgn</span>
+<span class="comment">%</span>
+<span class="comment">% FdSchmidlRay = (1+256-find(BgRay==max(BgRay)))*2 +feRay;%2*(513-(find(BgRay==max(BgRay)))) + feRay</span>
+<span class="keyword">if</span> abs(FdSchmidlRay-FreqOffset )&gt;MaxFreqError &amp;&amp; EnableOutputError
+    SchmidlError = 1;
+    fprintf(<span class="string">'ERROR, Schmidl New!!!\n'</span>);
+<span class="keyword">end</span>
+<span class="comment">%Schmidl old _______________________________________________________</span>
+seq1Olddf(1,:) = seq1OldUpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndSchOld:maxAwgnIndSchOld+N-1);<span class="comment">%&#1058;&#1077;&#1087;&#1077;&#1088;&#1100; &#1091;&#1078;&#1077; &#1074;&#1089;&#1077; &#1087;&#1086; &#1095;&#1077;&#1089;&#1090;&#1085;&#1086;&#1084;&#1091;</span>
+seq12Olddf(1,:) = seq1OldUpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndSchOld:maxAwgnIndSchOld-1+N+N+fix(CP*N));<span class="comment">%&#1040;&#1043;&#1041;&#1064;</span>
+
+seq1Olddf(2,:) = seq1OldUpFcRayF0Dec500LpfFs1(1,maxRayIndSchOld:maxRayIndSchOld-1+N);<span class="comment">%&#1058;&#1077;&#1087;&#1077;&#1088;&#1100; &#1091;&#1078;&#1077; &#1074;&#1089;&#1077; &#1087;&#1086; &#1095;&#1077;&#1089;&#1090;&#1085;&#1086;&#1084;&#1091;</span>
+seq12Olddf(2,:) = seq1OldUpFcRayF0Dec500LpfFs1(1,maxRayIndSchOld:maxRayIndSchOld-1+N+N+fix(CP*N));<span class="comment">%&#1056;&#1069;&#1051;&#1045;&#1049;</span>
+<span class="comment">% seq1Olddf(1,:) = seq1OldUpFcAwgnF0Dec500LpfFs1(1,401:401+N-1);%&#1058;&#1077;&#1087;&#1077;&#1088;&#1100; &#1091;&#1078;&#1077; &#1074;&#1089;&#1077; &#1087;&#1086; &#1095;&#1077;&#1089;&#1090;&#1085;&#1086;&#1084;&#1091;</span>
+<span class="comment">% seq12Olddf(1,:) = seq1OldUpFcAwgnF0Dec500LpfFs1(1,401:401-1+N+N+fix(CP*N));%&#1040;&#1043;&#1041;&#1064;</span>
+<span class="comment">%</span>
+<span class="comment">% seq1Olddf(2,:) = seq1OldUpFcRayF0Dec500LpfFs1(1,401:401-1+N);%&#1058;&#1077;&#1087;&#1077;&#1088;&#1100; &#1091;&#1078;&#1077; &#1074;&#1089;&#1077; &#1087;&#1086; &#1095;&#1077;&#1089;&#1090;&#1085;&#1086;&#1084;&#1091;</span>
+<span class="comment">% seq12Olddf(2,:) = seq1OldUpFcRayF0Dec500LpfFs1(1,401:401-1+N+N+fix(CP*N));%&#1056;&#1069;&#1051;&#1045;&#1049;</span>
+P1Old = sum(conj(seq1Olddf(1,1:N/2)).*seq1Olddf(1,1+N/2:N));
+phiOld = angle(P1Old);
+feAwgnOld = phiOld/pi;
+CorrOld = exp(-1i*2*phiOld*t12/N);
+seq12OlddfCorr = seq12Olddf(1,:).*CorrOld;
+F1Old = fft(seq12OlddfCorr(1:N));F1Old = [F1Old(N/2+1:end),F1Old(1:N/2)];
+F2Old = fft(seq12OlddfCorr(N+fix(CP*N)+1:end));F2Old = [F2Old(N/2+1:end),F2Old(1:N/2)];
+F1F2Old = conj(F1Old).*F2Old;
+<span class="comment">% B(1) = power(abs(sum(F1F2.*conj(frs(1:2:end)))),2)/2/power(sum(power(F2,2)),2);</span>
+<span class="keyword">for</span> i = 1:N/2
+    F1F2shOld = circshift(F1F2Old,[0,2*(i-1)]);
+    BgAwgnOld(i) = power(abs(sum(  F1F2shOld(1:2:end).*  conj(VkOld)      )),2)/2/power(sum(power(abs(F2Old),2)),2);
+<span class="keyword">end</span>
+P1Old = sum(conj(seq1Olddf(2,1:N/2)).*seq1Olddf(2,1+N/2:N));
+phiOld = angle(P1Old);
+feRayOld = phiOld/pi;
+CorrOld = exp(-1i*2*phiOld*t12/N);
+seq12OlddfCorr = seq12Olddf(2,:).*CorrOld;
+F1Old = fft(seq12OlddfCorr(1:N));F1Old = [F1Old(N/2+1:end),F1Old(1:N/2)];
+F2Old = fft(seq12OlddfCorr(N+fix(CP*N)+1:end));F2Old = [F2Old(N/2+1:end),F2Old(1:N/2)];
+F1F2Old = conj(F1Old).*F2Old;
+<span class="comment">% B(1) = power(abs(sum(F1F2.*conj(frs(1:2:end)))),2)/2/power(sum(power(F2,2)),2);</span>
+<span class="keyword">for</span> i = 1:N/2
+    F1F2shOld = circshift(F1F2Old,[0,2*(i-1)]);
+    BgRayOld(i) = power(abs(sum(  F1F2shOld(1:2:end).*  conj(VkOld)      )),2)/2/power(sum(power(abs(F2Old),2)),2);
+<span class="keyword">end</span>
+FdSchmidlAwgnOld = (1+256-find(BgAwgnOld==max(BgAwgnOld)))*2 +feAwgnOld;<span class="comment">% 2*(513-(find(BgAwgn==max(BgAwgn)))) + feAwgn</span>
+FdSchmidlRayOld = (1+256-find(BgRayOld==max(BgRayOld)))*2 +feRayOld;<span class="comment">%2*(513-(find(BgRay==max(BgRay)))) + feRay</span>
+<span class="keyword">if</span> abs(FdSchmidlRayOld-FreqOffset )&gt;MaxFreqError &amp;&amp; EnableOutputError
+    SchmidlOldError = 1;
+    fprintf(<span class="string">'ERROR, Schmidl Old!!!\n'</span>);
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> EnableOutput
+   fprintf(<span class="string">'Error of proposed method is %.5f (awgn), %.5f (rayleygh)\n'</span>,FdProposedAwgn-FreqOffset,FdProposedRay-FreqOffset);
+   fprintf(<span class="string">'Error of modified Schmidl method is %.5f (awgn), %.5f (rayleygh)\n'</span>,FdSchmidlAwgn-FreqOffset,FdSchmidlRay-FreqOffset);
+   fprintf(<span class="string">'Error of Schmidl method is %.5f (awgn), %.5f (rayleygh)\n'</span>,FdSchmidlAwgnOld-FreqOffset,FdSchmidlRayOld-FreqOffset);
+<span class="keyword">end</span>
+<span class="comment">% toc;</span>
+<span class="comment">% figure;plot(abs(conj(F1).*F2));</span>
+
+<span class="comment">% figure;plot(abs(FkAwgn));</span>
+</pre><p>figure;hold on; plot((fft(A/100))); plot((frs),'r'); figure;plot(abs(RespOfFind));</p><p>figure;plot(Bg); toc;</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%Почему бы не провести исследование зависимости от частоты доплера, от
+%часотного сдвига, параметров канала рэлея. Причем не нужно хвататься за
+%выбросы. просто усредняю и все
+% clear all;close all;
+% FreqOffset = 12.4; % Frequency offcet in subcarrier spacing
+% SNR = 40;
+% FreqDop = 0.0001;
+% %
+% tic;
+function [FdSchmidlAwgn,FdSchmidlRay,FdProposedAwgn,FdProposedRay,FdSchmidlAwgnOld,FdSchmidlRayOld]=FreqSynchroForArticle_withRF(SNR,FreqOffset,FreqDop)
+Nfft=2^17;
+dev = 50;
+EnableGraphs = 0;
+EnableOutput = 1;
+EnableOutputError = 0;
+PartOfB1 = 0.0;
+ProposedError =0;
+SchmidlError = 0;
+SchmidlOldError = 0;
+MaxFreqError = 0.5;
+
+Nc = 1000; % Number of subcarriers
+N = 1024; % Number of IFFT points
+Rd = 18e6; % Data rate bit per second
+CP = 0.1; % Cyclic prefix length as part of symbol period
+Fs1 =(Rd/(1-CP));%20mHz, 50ns
+% 
+NumOfOsc = 16; % Number of Oscillator for Jakes' model
+Fc = 2e8; % Hz, Carrier frequency 2GHz
+OsFac = 10; %oversampling factor
+Fs = Fc*OsFac; %sampling frequency Fs = 20GHz
+VehSpeed = 150; % kmph, Speed of vehicle
+NumOfPath = 4; % Number of paths
+DelOfPath = [0, 1, 2, 3]/Fs; % Delays of the paths in samples
+AvRecPwr = [0, -3, -6, -9]; % Average received power, dB
+Nnoise = 400;%number of noise samples
+phiRand = 2*pi/3;
+Nshow = 100;
+
+FullTimingSyncSim = 0;%Enable simulation of second method of timing synchronization
+
+%
+frs3 = (randi(2,[1 N])-1.5)*2;% вторая последовательность
+frs4 = (randi(2,[1 N/4])-1.5)*2;
+C = ifft(frs4,N/4);
+BP = ifft(frs3,N);
+
+CiCcCciC=[C,C(end:-1:1),conj(C),conj(C(end:-1:1))];
+
+frs = (randi(2,[1 N/2])-1.5)*2;%mseq(2,log2(N/2)); последовательность +-1
+A = ifft(frs,N/2);%A -последовательность длины N/2
+CiCcCciC_B = [CiCcCciC,zeros(1,fix(CP*N)),BP];%A,A];
+frs2Old = (randi(2,[1 N])-1.5)*2;
+G1 = ifft(frs3,N);
+% G2 = ifft((randi(2,[1 N/2])-1.5)*2);
+G2 =G1(1:N/2);
+% GciG=[G2,G2(end:-1:1),zeros(1,fix(CP*N)),conj(G2),conj(G2(end:-1:1))];
+GciG=CiCcCciC_B;%[CiCcCciC,zeros(1,fix(CP*N)),CiCcCciC];
+G3=GciG(end-N+1:end);
+seq1 = [zeros(1,Nnoise),real(GciG),zeros(1,Nnoise)]+1i* [zeros(1,Nnoise),imag(GciG),zeros(1,Nnoise)];
+
+%frs3(1:(N-Nc)/2) = zeros(1,(N-Nc)/2);frs3(end:-1:end-(N-Nc)/2+1) = zeros(1,(N-Nc)/2);
+B1 = ifft(frs3,N);% последовательность длины N
+AA = [A(1:N/2),A(1:N/2)];% последовательность длины N
+% B = [conj(A(end:-1:1)), B1(1:N/2)];
+% B = [conj(AA(end:-1:1+fix(N*PartOfB1))), B1(1:fix(N*PartOfB1))/PartOfB1];%
+B = ifft(frs3,N);
+BOld = ifft(frs2Old,N);
+frs2 = fft(B,N);
+AA_B = [AA, zeros(1,fix(CP*N)),B]; %две последовательности длины 2048+102=2150
+% seq1 = [zeros(1,Nnoise),real(AA_B),zeros(1,Nnoise)]+1i* [zeros(1,Nnoise),imag(AA_B),zeros(1,Nnoise)];% последовательность с началом и концом без сигнала
+AA_BOld = [AA, zeros(1,fix(CP*N)),BOld];
+seq1Old = [zeros(1,Nnoise),real(AA_BOld),zeros(1,Nnoise)]+1i* [zeros(1,Nnoise),imag(AA_BOld),zeros(1,Nnoise)];% последовательность с началом и концом без сигнала
+%seq1 - это для метода шмидля
+%seq2 - это для метода proposed
+
+
+CCmCmC = [C,C,-C,-C];
+CCmCmC_B = [CCmCmC, zeros(1,fix(CP*N)),BP];
+seq2 = [zeros(1,Nnoise),real(CCmCmC),zeros(1,Nnoise)]+1i* [zeros(1,Nnoise),imag(CCmCmC),zeros(1,Nnoise)];
+
+seq3 = [zeros(1,Nnoise),real(CiCcCciC_B),zeros(1,Nnoise)]+1i* [zeros(1,Nnoise),imag(CiCcCciC_B),zeros(1,Nnoise)];
+
+
+
+
+% длина 6*N+2150 = 8294
+
+seq1Up = resample(seq1,Fs/Fs1,1); %последовательность на частоте 2ГГц, была на 20MHz
+seq1OldUp = resample(seq1Old,Fs/Fs1,1);
+seq3Up = resample(seq3,Fs/Fs1,1); 
+if FullTimingSyncSim
+    seq2Up = resample(seq2,Fs/Fs1,1); 
+end
+tUp = (1:length(seq1Up))/Fs;% вектор времен для этой новой последовательности 
+tUp3 = (1:length(seq3Up))/Fs;
+seq1UpFc = seq1Up.*exp(1i*2*pi*(Fc+FreqOffset*Fs1/N)*tUp);% последовательность уже на несущей + доплеровкий сдвиг
+seq1OldUpFc = seq1OldUp.*exp(1i*2*pi*(Fc+FreqOffset*Fs1/N)*tUp);% последовательность уже на несущей + доплеровкий сдвиг
+seq3UpFc = seq3Up.*exp(1i*2*pi*(Fc+FreqOffset*Fs1/N)*tUp3);
+if FullTimingSyncSim
+    seq2UpFc = seq2Up.*exp(1i*2*pi*(Fc+FreqOffset*Fs1/N)*tUp3);
+end
+
+
+tt1 = (1:length(AA)*Fs/Fs1)/Fs;
+nfft = 2^15;
+% [pw,f]=pwelch(seq1UpFcAwgn(3*N*Fs/Fs1+1:3*N*Fs/Fs1+length(AA)*Fs/Fs1),[],[],nfft,Fs);
+% figure;plot(f,10*log10(pw));grid on;% 
+% [pw,f]=pwelch(seq1UpFcAwgn,[],[],nfft,Fs);
+% figure;plot(f,10*log10(pw));grid on;
+% [pw,f]=pwelch(aa1,[],[],nfft,Fs);
+% figure;plot(f-Fs/2,[pw(nfft/2+1:nfft);pw(1:nfft/2)]);grid on;
+if ~exist('RayCh1')
+    RayCh1 = rayleighchan(1/Fs,FreqDop,DelOfPath,AvRecPwr);
+%     RayCh1 = ricianchan(1/Fs,277.3,10,DelOfPath,AvRecPwr);
+    RayCh1.ResetBeforeFiltering = 1;
+end
+% RayCh1
+seq1UpFcAwgn = awgn(seq1UpFc,SNR);%,'measured');%сигнал после АГБШ канала
+seq1UpFcRay = awgn(filter(RayCh1,seq1UpFc),SNR);%,'measured');
+
+seq1OldUpFcAwgn = awgn(seq1OldUpFc,SNR);%,'measured');%сигнал после АГБШ канала
+seq1OldUpFcRay = awgn(filter(RayCh1,seq1OldUpFc),SNR);%,'measured');
+
+seq3UpFcAwgn = awgn(seq3UpFc,SNR);%сигнал после АГБШ канала
+seq3UpFcRay = awgn(filter(RayCh1,seq3UpFc),SNR);
+
+if FullTimingSyncSim
+    seq2UpFcAwgn = awgn(seq2UpFc,SNR);%сигнал после АГБШ канала
+    seq2UpFcRay = awgn(filter(RayCh1,seq2UpFc),SNR);
+end
+
+seq1UpFcAwgnF0 = seq1UpFcAwgn.*exp(-1i*2*pi*Fc*tUp);%сигнал после переноса частоты на 0
+seq1UpFcRayF0 = seq1UpFcRay.*exp(-1i*2*pi*Fc*tUp);%сигнал после переноса частоты на 0
+seq1OldUpFcAwgnF0 = seq1OldUpFcAwgn.*exp(-1i*2*pi*Fc*tUp);%сигнал после переноса частоты на 0
+seq1OldUpFcRayF0 = seq1OldUpFcRay.*exp(-1i*2*pi*Fc*tUp);%сигнал после переноса частоты на 0
+
+seq3UpFcAwgnF0 = seq3UpFcAwgn.*exp(-1i*2*pi*Fc*tUp3);%сигнал после переноса частоты на 0
+seq3UpFcRayF0 = seq3UpFcRay.*exp(-1i*2*pi*Fc*tUp3);%сигнал после переноса частоты на 0
+if FullTimingSyncSim
+    seq2UpFcAwgnF0 = seq2UpFcAwgn.*exp(-1i*2*pi*Fc*tUp3);%сигнал после переноса частоты на 0
+    seq2UpFcRayF0 = seq2UpFcRay.*exp(-1i*2*pi*Fc*tUp3);%сигнал после переноса частоты на 0
+end
+% figure;hold on;grid on;
+% plot(seq1UpFcAwgnF0);
+% plot(seq1UpFcRayF0,'r');
+% [pw,f]=pwelch(seq1UpFcAwgnF0,[],[],nfft,Fs);% спектр сигнала 
+% figure;hold on;grid on;plot(f,10*log10(pw));grid on;%рисуем% 
+% [pw,f]=pwelch(seq1UpFcRayF0,[],[],nfft,Fs);% спектр сигнала 
+% plot(f,10*log10(pw),'r');grid on;%рисуем
+
+Dec = Fs/Fs1;
+if Dec-fix(Dec)~=0
+    display('Decimation factor is not integer!!! Exit.');
+    return;
+end
+Decs = sort(factor(Dec),'descend');
+
+
+seq1UpFcAwgnF0Dec500 = decimate(seq1UpFcAwgnF0,Decs(1),64,'fir');% децимация в 500раз (всего было 1000)
+seq1UpFcRayF0Dec500 = decimate(seq1UpFcRayF0,Decs(1),64,'fir');% децимация в 500раз (всего было 1000)
+seq1OldUpFcAwgnF0Dec500 = decimate(seq1OldUpFcAwgnF0,Decs(1),64,'fir');% децимация в 500раз (всего было 1000)
+seq1OldUpFcRayF0Dec500 = decimate(seq1OldUpFcRayF0,Decs(1),64,'fir');% децимация в 500раз (всего было 1000)
+seq3UpFcAwgnF0Dec500 = decimate(seq3UpFcAwgnF0,Decs(1),64,'fir');% децимация в 500раз (всего было 1000)
+seq3UpFcRayF0Dec500 = decimate(seq3UpFcRayF0,Decs(1),64,'fir');% децимация в 500раз (всего было 1000)
+for j=2:length(Decs)-1
+    seq1UpFcAwgnF0Dec500 = decimate(seq1UpFcAwgnF0Dec500,Decs(j),64,'fir');% децимация в 500раз (всего было 1000)
+    seq1UpFcRayF0Dec500 = decimate(seq1UpFcRayF0Dec500,Decs(j),64,'fir');% децимация в 500раз (всего было 1000)
+    seq1OldUpFcAwgnF0Dec500 = decimate(seq1OldUpFcAwgnF0Dec500,Decs(j),64,'fir');% децимация в 500раз (всего было 1000)
+    seq1OldUpFcRayF0Dec500 = decimate(seq1OldUpFcRayF0Dec500,Decs(j),64,'fir');% децимация в 500раз (всего было 1000)
+    seq3UpFcAwgnF0Dec500 = decimate(seq3UpFcAwgnF0Dec500,Decs(j),64,'fir');% децимация в 500раз (всего было 1000)
+    seq3UpFcRayF0Dec500 = decimate(seq3UpFcRayF0Dec500,Decs(j),64,'fir');% децимация в 500раз (всего было 1000)
+end
+% seq1UpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq1UpFcAwgnF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+% seq1UpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq1UpFcRayF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+% seq1OldUpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq1OldUpFcAwgnF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+% seq1OldUpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq1OldUpFcRayF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+
+if (Decs(end)~=2)
+    display('Last decimation factor is not 2!!! Exit.');
+    return;
+end
+seq1UpFcAwgnF0Dec500Lpf=seq1UpFcAwgnF0Dec500;%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcAwgnF0Dec500);%фильтрация для итоговой децимации
+seq1UpFcRayF0Dec500Lpf = seq1UpFcRayF0Dec500;%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcRayF0Dec500);% фильтрация для итоговой децимации
+seq1OldUpFcAwgnF0Dec500Lpf=seq1OldUpFcAwgnF0Dec500;%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcAwgnF0Dec500);%фильтрация для итоговой децимации
+seq1OldUpFcRayF0Dec500Lpf = seq1OldUpFcRayF0Dec500;%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcRayF0Dec500);% фильтрация для итоговой децимации
+
+seq1UpFcAwgnF0Dec500LpfFs1 = decimate(seq1UpFcAwgnF0Dec500Lpf,2,128,'fir'); % итоговая децимация в 2раза, до изначальной частоты
+seq1UpFcRayF0Dec500LpfFs1 = decimate(seq1UpFcRayF0Dec500Lpf,2,128,'fir'); % итоговая децимация в 2раза, до изначальной частоты
+seq1OldUpFcAwgnF0Dec500LpfFs1 = decimate(seq1OldUpFcAwgnF0Dec500Lpf,2,128,'fir'); % итоговая децимация в 2раза, до изначальной частоты
+seq1OldUpFcRayF0Dec500LpfFs1 = decimate(seq1OldUpFcRayF0Dec500Lpf,2,128,'fir'); % итоговая децимация в 2раза, до изначальной частоты
+
+% seq3UpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq3UpFcAwgnF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+% seq3UpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq3UpFcRayF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+seq3UpFcAwgnF0Dec500Lpf=seq3UpFcAwgnF0Dec500;%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcAwgnF0Dec500);%фильтрация для итоговой децимации
+seq3UpFcRayF0Dec500Lpf = seq3UpFcRayF0Dec500;%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcRayF0Dec500);% фильтрация для итоговой децимации
+seq3UpFcAwgnF0Dec500LpfFs1 = decimate(seq3UpFcAwgnF0Dec500Lpf,2,128,'fir'); % итоговая децимация в 2раза, до изначальной частоты
+seq3UpFcRayF0Dec500LpfFs1 = decimate(seq3UpFcRayF0Dec500Lpf,2,128,'fir'); % итоговая децимация в 2раза, до изначальной частоты
+
+
+% RespOfFind:
+% 1 - Schmild new AWGN, 2 - Schmidl new Rayleygh
+% 3 - Park AWGN, 4 - Park Rayleygh
+% 5 - Minn AWGN, 6 - Minn Rayleygh
+% 7 - Schmild old AWGN, 8 - Schmidl old Rayleygh
+
+
+% for j=N/2+1:N/2+2*Nnoise
+%     P1 = 0;R1 = 0;
+%     for k = 0:N/2
+%         P1 = P1 + seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq1UpFcAwgnF0Dec500LpfFs1(1,j-k)+ seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1+N+fix(CP*N))*seq1UpFcAwgnF0Dec500LpfFs1(1,j-k+N+fix(CP*N));
+%         R1 = R1 + power(abs(seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1)),2)+ power(abs(seq1UpFcAwgnF0Dec500LpfFs1(1,j+k-1+N+fix(CP*N))),2);
+% %         abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);
+%     end  
+%     RespOfFind(1,j-N/2) = power(abs(P1),2)/power(R1,2);
+% end
+% for j=N/2+1:N/2+2*Nnoise
+%     P1 = 0;R1 = 0;
+%     for k = 0:N/2
+%         P1 = P1 + seq1UpFcRayF0Dec500LpfFs1(1,j+k-1)*seq1UpFcRayF0Dec500LpfFs1(1,j-k)+ seq1UpFcRayF0Dec500LpfFs1(1,j+k-1+N+fix(CP*N))*seq1UpFcRayF0Dec500LpfFs1(1,j-k+N+fix(CP*N));
+%         R1 = R1 + power(abs(seq1UpFcRayF0Dec500LpfFs1(1,j+k-1)),2)+ power(abs(seq1UpFcRayF0Dec500LpfFs1(1,j+k-1+N+fix(CP*N))),2);
+% %         abs(seq3UpFcRayF0Dec500LpfFs1(1,j+k-1)*seq3UpFcRayF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);
+%     end  
+%     RespOfFind(2,j-N/2) = power(abs(P1),2)/power(R1,2);
+% end
+
+for j=N/2+1:N/2+2*Nnoise
+    P1 = 0;R1 = 0;
+    for k = 0:N/2
+        P1 = P1 + seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k);
+        R1 = R1 + power(abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)),2);
+%         abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);
+    end  
+    RespOfFind(1,j-N/2) = power(abs(P1),2)/power(R1,2);
+end
+for j=N/2+1:N/2+2*Nnoise
+    P1 = 0;R1 = 0;
+    for k = 0:N/2
+        P1 = P1 + seq3UpFcRayF0Dec500LpfFs1(1,j+k-1)*seq3UpFcRayF0Dec500LpfFs1(1,j-k);
+        R1 = R1 + power(abs(seq3UpFcRayF0Dec500LpfFs1(1,j+k-1)),2);
+%         abs(seq3UpFcRayF0Dec500LpfFs1(1,j+k-1)*seq3UpFcRayF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);
+    end  
+    RespOfFind(2,j-N/2) = power(abs(P1),2)/power(R1,2);
+end
+
+
+
+
+
+
+
+
+for j=N/2+1:N/2+2*Nnoise
+    P1 = 0;R1 = 0;
+    for k = 0:N/2
+        P1 = P1 + seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k);
+        R1 = R1 + power(abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)),2);
+%         abs(seq3UpFcAwgnF0Dec500LpfFs1(1,j+k-1)*seq3UpFcAwgnF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);
+    end  
+    RespOfFind(3,j-N/2) = power(abs(P1),2)/power(R1,2);
+end
+for j=N/2+1:N/2+2*Nnoise
+    P1 = 0;R1 = 0;
+    for k = 0:N/2
+        P1 = P1 + seq3UpFcRayF0Dec500LpfFs1(1,j+k-1)*seq3UpFcRayF0Dec500LpfFs1(1,j-k);
+        R1 = R1 + power(abs(seq3UpFcRayF0Dec500LpfFs1(1,j+k-1)),2);
+%         abs(seq3UpFcRayF0Dec500LpfFs1(1,j+k-1)*seq3UpFcRayF0Dec500LpfFs1(1,j-k));%power(abs(seq3(1,j+k-1)),2);
+    end  
+    RespOfFind(4,j-N/2) = power(abs(P1),2)/power(R1,2);
+end
+%THE SAME SEQUENCE FOR SYNCHRO BOTH SCHMIDL!!!
+for j=1:2*Nnoise %???? ?????? (?????????????) ??? ???? ??????
+    P1 = sum(conj(seq1OldUpFcAwgnF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1OldUpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));
+    R1 = sum(power(abs(seq1OldUpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));
+    RespOfFind(7,j) = power(abs(P1),2)/power(R1,2); % ?????? ?? ?????
+end
+for j=1:2*Nnoise %???? ?????? (?????????????) ??? ???? ??????
+    P1 = sum(conj(seq1OldUpFcRayF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1OldUpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));
+    R1 = sum(power(abs(seq1OldUpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));
+    RespOfFind(8,j) = power(abs(P1),2)/power(R1,2); % ?????? ?? ?????
+end
+% for j=1:2*Nnoise %???? ?????? (?????????????) ??? ???? ??????
+%     P1 = sum(conj(seq1OldUpFcAwgnF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1OldUpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));
+%     R1 = sum(power(abs(seq1OldUpFcAwgnF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));
+%     RespOfFind(7,j) = power(abs(P1),2)/power(R1,2); % ?????? ?? ?????
+% end
+% for j=1:2*Nnoise %???? ?????? (?????????????) ??? ???? ??????
+%     P1 = sum(conj(seq1OldUpFcRayF0Dec500LpfFs1(1,j:j+N/2-1)).*seq1OldUpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2));
+%     R1 = sum(power(abs(seq1OldUpFcRayF0Dec500LpfFs1(1,j+N/2:j+N/2-1+N/2)),2));
+%     RespOfFind(8,j) = power(abs(P1),2)/power(R1,2); % ?????? ?? ?????
+% end
+
+
+if FullTimingSyncSim
+    seq2UpFcAwgnF0Dec500 = decimate(decimate(decimate(decimate(seq2UpFcAwgnF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+    seq2UpFcRayF0Dec500 = decimate(decimate(decimate(decimate(seq2UpFcRayF0,5,64,'fir'),5,64,'fir'),5,64,'fir'),4,64,'fir');% децимация в 500раз (всего было 1000)
+    seq2UpFcAwgnF0Dec500Lpf=seq2UpFcAwgnF0Dec500;%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcAwgnF0Dec500);%фильтрация для итоговой децимации
+    seq2UpFcRayF0Dec500Lpf = seq2UpFcRayF0Dec500;%LPF_fs40MHz_20Mpass_21Mstop(seq1UpFcRayF0Dec500);% фильтрация для итоговой децимации
+    seq2UpFcAwgnF0Dec500LpfFs1 = decimate(seq2UpFcAwgnF0Dec500Lpf,2,128,'fir'); % итоговая децимация в 2раза, до изначальной частоты
+    seq2UpFcRayF0Dec500LpfFs1 = decimate(seq2UpFcRayF0Dec500Lpf,2,128,'fir'); % итоговая децимация в 2раза, до изначальной частоты
+    for j=1:2*Nnoise
+        P1 = sum(conj(seq2UpFcAwgnF0Dec500LpfFs1(1,j:j+N/4-1)).*seq2UpFcAwgnF0Dec500LpfFs1(1,j+N/4:j+N/4-1+N/4)) ...
+            + sum(conj(seq2UpFcAwgnF0Dec500LpfFs1(1,j+2*N/4:j+N/4-1+2*N/4)).*seq2UpFcAwgnF0Dec500LpfFs1(1,j+N/4+2*N/4:j+N/4-1+N/4+2*N/4));
+        R1 = sum(power(abs(seq2UpFcAwgnF0Dec500LpfFs1(1,j+N/4:j+N/4-1+N/4)),2)) + sum(power(abs(seq2UpFcAwgnF0Dec500LpfFs1(1,j+N/4+2*N/4:j+N/4-1+N/4+2*N/4)),2));
+%         sum(abs(conj(seq2UpFcAwgnF0Dec500LpfFs1(1,j:j+N/4-1)).*seq2UpFcAwgnF0Dec500LpfFs1(1,j+N/4:j+N/4-1+N/4))) ...
+%             + sum(abs(conj(seq2UpFcAwgnF0Dec500LpfFs1(1,j+2*N/4:j+N/4-1+2*N/4)).*seq2UpFcAwgnF0Dec500LpfFs1(1,j+N/4+2*N/4:j+N/4-1+N/4+2*N/4))) ;
+        % 
+        RespOfFind(5,j) = power(abs(P1),2)/power(R1,2);
+    end
+    for j=1:2*Nnoise
+        P1 = sum(conj(seq2UpFcRayF0Dec500LpfFs1(1,j:j+N/4-1)).*seq2UpFcRayF0Dec500LpfFs1(1,j+N/4:j+N/4-1+N/4)) ...
+            + sum(conj(seq2UpFcRayF0Dec500LpfFs1(1,j+2*N/4:j+N/4-1+2*N/4)).*seq2UpFcRayF0Dec500LpfFs1(1,j+N/4+2*N/4:j+N/4-1+N/4+2*N/4));
+        R1 = sum(power(abs(seq2UpFcRayF0Dec500LpfFs1(1,j+N/4:j+N/4-1+N/4)),2)) + sum(power(abs(seq2UpFcRayF0Dec500LpfFs1(1,j+N/4+2*N/4:j+N/4-1+N/4+2*N/4)),2));
+%         sum(abs(conj(seq2UpFcRayF0Dec500LpfFs1(1,j:j+N/4-1)).*seq2UpFcRayF0Dec500LpfFs1(1,j+N/4:j+N/4-1+N/4))) ...
+%             + sum(abs(conj(seq2UpFcRayF0Dec500LpfFs1(1,j+2*N/4:j+N/4-1+2*N/4)).*seq2UpFcRayF0Dec500LpfFs1(1,j+N/4+2*N/4:j+N/4-1+N/4+2*N/4))) ;% 
+        RespOfFind(6,j) = power(abs(P1),2)/power(R1,2);
+    end
+end
+tResp = 1:length(RespOfFind);
+ close all;
+ 
+if EnableGraphs
+    figure;hold on;grid on;%рисуем отклики во времени
+    plot(tResp(:)-Nnoise-1,abs(RespOfFind(1,:)),'REPLACE_WITH_DASH_DASH');%2.2*N:end-3*N
+    plot(tResp(:)-Nnoise-1,abs(RespOfFind(3,:)),'r');
+    plot(tResp(:)-Nnoise-1,abs(RespOfFind(7,:)),'g');
+    if FullTimingSyncSim
+        plot(tResp(:)-Nnoise-1,abs(RespOfFind(5,:)),'k:');
+        legend('Метод Минна для Шмидля','Метод Минна','Метод Шмидля','Метод Парка');
+    else
+        legend('Метод Минна для Шмидля','Метод Минна','Метод Шмидля');
+    end
+    xlabel('Дискретные отсчеты');ylabel('Временная метрика в канале с АГБШ, ед.');
+
+
+    figure;hold on;grid on;
+    plot(tResp(:)-Nnoise-1,abs(RespOfFind(2,:)),'REPLACE_WITH_DASH_DASH');%2.2*N:end-3*N
+    plot(tResp(:)-Nnoise-1,abs(RespOfFind(4,:)),'r');
+    plot(tResp(:)-Nnoise-1,abs(RespOfFind(8,:)),'g');
+    if FullTimingSyncSim
+        plot(tResp(:)-Nnoise-1,abs(RespOfFind(6,:)),'k:');
+        legend('Метод Минна для Шмидля','Метод Минна','Метод Шмидля','Метод Парка');
+    else
+        legend('Метод Минна для Шмидля','Метод Минна','Метод Шмидля');
+    end
+    xlabel('Дискретные отсчеты');ylabel('Временная метрика в Рэлеевском канале, ед.');
+    drawnow;
+end
+%
+maxAwgnSchOld = 0;
+maxAwgnIndSchOld = 0;
+maxRaySchOld = 0;
+maxRayIndSchOld = 0;
+curMaxOld = 0;
+for j=1:length(tResp)-103
+    curMaxOld = sum(RespOfFind(7,j:j+102));
+    if curMaxOld>maxAwgnSchOld
+        maxAwgnSchOld = curMaxOld;
+        maxAwgnIndSchOld = j;
+    end
+    curMaxOld = sum(RespOfFind(8,j:j+102));
+    if curMaxOld>maxRaySchOld
+        maxRaySchOld = curMaxOld;
+        maxRayIndSchOld = j;
+    end
+end
+%
+maxAwgnSch = 0;
+maxAwgnIndSch = 0;
+maxRaySch = 0;
+maxRayIndSch = 0;
+curMax = 0;
+% maxAwgnSchOld =  Nnoise+1; %DELETE IF FINDING SYNCHRO!!!
+% maxRaySchOld =  Nnoise+1; %DELETE IF FINDING SYNCHRO!!!
+maxAwgnIndSch = Nnoise+1;%find(RespOfFind(1,:)==max(RespOfFind(1,:)));
+maxRayIndSch = Nnoise+1;%find(RespOfFind(2,:)==max(RespOfFind(2,:)));
+maxAwgnIndPro = Nnoise+1;%find(RespOfFind(3,:)==max(RespOfFind(3,:)));
+maxRayIndPro = Nnoise+1;%find(RespOfFind(4,:)==max(RespOfFind(4,:)));
+% maxAwgnIndSch = find(RespOfFind(1,:)==max(RespOfFind(1,:)));
+% maxRayIndSch = find(RespOfFind(2,:)==max(RespOfFind(2,:)));
+% maxAwgnIndPro =find(RespOfFind(3,:)==max(RespOfFind(3,:)));
+% maxRayIndPro = find(RespOfFind(4,:)==max(RespOfFind(4,:)));
+
+if EnableOutput
+    fprintf('Time synchronization error Schmidl new %d %d, proposed %d %d, Schmidl old %d %d\n',maxAwgnIndSch-Nnoise-1,maxRayIndSch-Nnoise-1,maxAwgnIndPro-Nnoise-1,...
+        maxRayIndPro-Nnoise-1,maxAwgnIndSchOld-Nnoise-1,maxRayIndSchOld-Nnoise-1);   
+end
+if (maxAwgnIndPro-Nnoise-1~=0 || maxRayIndPro-Nnoise-1~=0) && EnableOutputError
+    fprintf('ERROR, Proposed!!!\n');
+%     maxAwgnIndPro
+%     maxRayIndPro
+    ProposedError = 1;
+end
+
+% 
+
+% Vk = sqrt(2).*frs2(1:2:end)./frs;%вспомогательная последовательность
+% VkOld = sqrt(2).*frs2Old(1:2:end)./frs;
+% Vk1 = frs2(1:2:end)./frs;%вспомогательная последовательность
+% Vk2 = frs2(2:2:end)./frs;
+VkOld = frs2Old(1:2:end)./frs;
+% figure;plot(abs(seq1));
+t1 = (1:length(AA(1,:)));
+t12 = (1:length(AA_B(1,:)));
+
+% seq1df(1,:) = seq1(1,3*N+1:3*N+N).*exp(1i*(2*pi*FreqOffset*t1/N));%Сначала брал только неискаженную последовательность, сдвинутую
+% seq12df(1,:) = seq1(1,3*N+1:3*N+N+N+fix(CP*N)).*exp(1i*(2*pi*FreqOffset*t12/N));
+
+%% Proposed
+seq1df(1,:) = seq3UpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndPro:maxAwgnIndPro+N-1);%Теперь уже все по честному 
+seq12df(1,:) = seq3UpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndPro:maxAwgnIndPro-1+N+N+fix(CP*N));%АГБШ
+
+seq1df(2,:) = seq3UpFcRayF0Dec500LpfFs1(1,maxRayIndPro:maxRayIndPro-1+N);%Теперь уже все по честному
+seq12df(2,:) = seq3UpFcRayF0Dec500LpfFs1(1,maxRayIndPro:maxRayIndPro-1+N+N+fix(CP*N));%РЭЛЕЙ
+
+% FkAwgn = fft(conj(AA).*seq1df(1,:),N);
+% FkAwgn = fft(conj(B).*seq12df(1,N+fix(CP*N)+1:N+fix(CP*N)+N),N);
+FkAwgn = fft(conj(G3).*seq12df(1,1+N+fix(CP*N):N+N+fix(CP*N)),N);
+FkAwgn = [FkAwgn(N/2+1:end),FkAwgn(1:N/2)];
+kmax =  find(abs(FkAwgn)==max(abs(FkAwgn)));
+FcoarseAwgn = kmax-N/2;
+if kmax>=2 && kmax <=1023
+    if abs(FkAwgn(kmax-1))<= abs(FkAwgn(kmax+1))
+        alp = 1;
+    else
+        alp = -1;
+    end
+    FfineAwgn = alp/(abs(FkAwgn(kmax))/abs(FkAwgn(kmax+alp))+1);
+else
+    FfineAwgn = 0;    
+end
+
+% FkRay = fft(conj(AA).*seq1df(2,:),N);
+% FkRay = fft(conj(B).*seq12df(2,N+fix(CP*N)+1:N+fix(CP*N)+N),N);
+FkRay = fft(conj(G3).*seq12df(2,1+N+fix(CP*N):N+N+fix(CP*N)),N);
+FkRay = [FkRay(N/2+1:end),FkRay(1:N/2)];
+kmax =  find(abs(FkRay)==max(abs(FkRay)));
+FcoarseRay = kmax-N/2;
+if kmax>=2 && kmax <=1023
+    if abs(FkRay(kmax-1))<= abs(FkRay(kmax+1))
+        alp = 1;
+    else
+        alp = -1;
+    end
+    FfineRay = alp/(abs(FkRay(kmax))/abs(FkRay(kmax+alp))+1);
+else
+    FfineRay = 0;
+end
+FdProposedAwgn = FcoarseAwgn + FfineAwgn - 1;
+FdProposedRay = FcoarseRay + FfineRay - 1;
+
+
+
+% Schmidl new ___________________________________________________
+seq1df(1,:) = seq3UpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndSch:maxAwgnIndSch+N-1);%Теперь уже все по честному 
+seq12df(1,:) = seq3UpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndSch:maxAwgnIndSch-1+N+N+fix(CP*N));%АГБШ
+
+seq1df(2,:) = seq3UpFcRayF0Dec500LpfFs1(1,maxRayIndSch:maxRayIndSch-1+N);%Теперь уже все по честному
+seq12df(2,:) = seq3UpFcRayF0Dec500LpfFs1(1,maxRayIndSch:maxRayIndSch-1+N+N+fix(CP*N));%РЭЛЕЙ
+
+
+
+FkAwgn = fft(conj(G3).*seq12df(1,1+N+fix(CP*N):N+N+fix(CP*N)),N);
+FkAwgn = [FkAwgn(N/2+1:end),FkAwgn(1:N/2)];
+kmax =  find(abs(FkAwgn)==max(abs(FkAwgn)));
+% Fk2sum = abs(FkAwgn(1:end-1))+abs(FkAwgn(2:end));
+% kmax = find((Fk2sum)==max((Fk2sum)));
+% if Fk2sum(kmax+1)>Fk2sum(kmax)
+%     kmax = kmax+1;
+% end
+
+
+FcoarseAwgn = kmax-N/2;
+if kmax>=2 && kmax <=1023
+    if abs(FkAwgn(kmax-1))<= abs(FkAwgn(kmax+1))
+        alp = 1;
+    else
+        alp = -1;
+    end
+    FfineAwgn = alp/(abs(FkAwgn(kmax))/abs(FkAwgn(kmax+alp))+1);
+else
+    FfineAwgn = 0;
+end
+
+FdSchmidlAwgn = FcoarseAwgn + FfineAwgn - 1;
+fmax1 = ((FcoarseAwgn-1-alp)/N*Nfft);
+fmax2 =  ((FcoarseAwgn-1+alp)/N*Nfft);
+kk = 1;
+ts = conj(G3).*seq12df(1,1+N+fix(CP*N):N+N+fix(CP*N)).*window(@hamming,N).';%hamming
+for jj = min(fmax1,fmax2)-dev:max(fmax1,fmax2)+dev
+    FHRAll(kk) = sum(ts.*exp(-1i*2*pi/Nfft*jj*(0:N-1)));
+    kk=kk+1;
+end
+FHR = FHRAll(dev+1:end-dev);
+indm = find(abs(FHR(1:end)) == max(abs(FHR)))+dev;
+indmm = sum(sqrt(abs(FHRAll(indm-dev:indm+dev))).*(indm-dev:indm+dev)) / sum(sqrt(abs(FHRAll(indm-dev:indm+dev))));
+FdSchmidlAwgn = FcoarseAwgn-2 + (indmm-1 -dev)*N/Nfft;
+
+
+FkRay = fft(conj(G3).*seq12df(2,1+N+fix(CP*N):N+N+fix(CP*N)),N);
+FkRay = [FkRay(N/2+1:end),FkRay(1:N/2)];
+kmax =  find(abs(FkRay)==max(abs(FkRay)));
+% Fk2sum = abs(FkRay(1:end-1))+abs(FkRay(2:end));
+% kmax = find((Fk2sum)==max((Fk2sum)));
+% if Fk2sum(kmax+1)>Fk2sum(kmax)
+%     kmax = kmax+1;
+% end
+FcoarseRay = kmax-N/2;
+if kmax>=2 && kmax <=1023
+    if abs(FkRay(kmax-1))<= abs(FkRay(kmax+1))
+        alp = 1;
+    else
+        alp = -1;
+    end
+    FfineRay = alp/(abs(FkRay(kmax))/abs(FkRay(kmax+alp))+1);
+else
+    FfineRay = 0;
+end    
+
+FdSchmidlRay = FcoarseRay + FfineRay - 1;
+fmax1 = ((FcoarseRay-1-alp)/N*Nfft);
+fmax2 =  ((FcoarseRay-1+alp)/N*Nfft);
+kk = 1;
+ts = conj(G3).*seq12df(2,1+N+fix(CP*N):N+N+fix(CP*N)).*window(@hamming,N).';
+for jj = min(fmax1,fmax2)-dev:max(fmax1,fmax2)+dev
+    FHRAll(kk) = sum(ts.*exp(-1i*2*pi/Nfft*jj*(0:N-1)));
+    kk=kk+1;
+end
+FHR = FHRAll(dev+1:end-dev);
+indm = find(abs(FHR(1:end)) == max(abs(FHR)))+dev;
+indmm = sum(abs(FHRAll(indm-dev:indm+dev)).*(indm-dev:indm+dev)) / sum(abs(FHRAll(indm-dev:indm+dev)));
+FdSchmidlRay = FcoarseRay-2 + (indmm-1-dev)*N/Nfft ;
+% 
+% 
+% P1 = sum(conj(seq1df(1,1:N/2)).*seq1df(1,1+N/2:N));
+% phi = angle(P1);
+% feAwgn = phi/pi;
+% Corr = exp(-1i*2*phi*t12/N);
+% seq12dfCorr = seq12df(1,:).*Corr;
+% F1 = fft(seq12dfCorr(1:N));F1 = [F1(N/2+1:end),F1(1:N/2)];
+% F2 = fft(seq12dfCorr(N+fix(CP*N)+1:end));F2 = [F2(N/2+1:end),F2(1:N/2)];
+% F1F2 = conj(F1).*[ F2(2:end),F2(1) ];
+% F1F2first = conj(F1).*F2;
+% % B(1) = power(abs(sum(F1F2.*conj(frs(1:2:end)))),2)/2/power(sum(power(F2,2)),2);
+% for i = 1:N/2
+%     F1F2sh = circshift(F1F2,[0,2*(i-1)]);
+%     F1F2shfirst = circshift(F1F2first,[0,2*(i-1)]);
+%     BgRay(i) = power(abs(sum(  F1F2sh(1:2:end).*  conj(Vk2)      )),2)/2/power(sum(power(abs(F2),2)),2)+...
+%         power(abs(sum(  F1F2shfirst(1:2:end).*  conj(Vk1)      )),2)/2/power(sum(power(abs(F2),2)),2);
+% end
+% P1 = sum(conj(seq1df(2,1:N/2)).*seq1df(2,1+N/2:N));
+% phi = angle(P1);
+% feRay = phi/pi;
+% Corr = exp(-1i*2*phi*t12/N);
+% seq12dfCorr = seq12df(2,:).*Corr;
+% F1 = fft(seq12dfCorr(1:N));F1 = [F1(N/2+1:end),F1(1:N/2)];
+% F2 = fft(seq12dfCorr(N+fix(CP*N)+1:end));F2 = [F2(N/2+1:end),F2(1:N/2)];
+% F1F2 = conj(F1).*[ F2(2:end),F2(1) ];
+% F1F2first = conj(F1).*F2;
+% % B(1) = power(abs(sum(F1F2.*conj(frs(1:2:end)))),2)/2/power(sum(power(F2,2)),2);
+% for i = 1:N/2
+%     F1F2sh = circshift(F1F2,[0,2*(i-1)]);
+%     F1F2shfirst = circshift(F1F2first,[0,2*(i-1)]);
+%     BgAwgn(i) = power(abs(sum(  F1F2sh(1:2:end).*  conj(Vk2)      )),2)/2/power(sum(power(abs(F2),2)),2)+...
+%         power(abs(sum(  F1F2shfirst(1:2:end).*  conj(Vk1)      )),2)/2/power(sum(power(abs(F2),2)),2);
+% end
+% FdSchmidlAwgn = (1+256-find(BgAwgn==max(BgAwgn)))*2 +feAwgn;% 2*(513-(find(BgAwgn==max(BgAwgn)))) + feAwgn
+% 
+% FdSchmidlRay = (1+256-find(BgRay==max(BgRay)))*2 +feRay;%2*(513-(find(BgRay==max(BgRay)))) + feRay
+if abs(FdSchmidlRay-FreqOffset )>MaxFreqError && EnableOutputError
+    SchmidlError = 1;
+    fprintf('ERROR, Schmidl New!!!\n');
+end
+%Schmidl old _______________________________________________________
+seq1Olddf(1,:) = seq1OldUpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndSchOld:maxAwgnIndSchOld+N-1);%Теперь уже все по честному 
+seq12Olddf(1,:) = seq1OldUpFcAwgnF0Dec500LpfFs1(1,maxAwgnIndSchOld:maxAwgnIndSchOld-1+N+N+fix(CP*N));%АГБШ
+
+seq1Olddf(2,:) = seq1OldUpFcRayF0Dec500LpfFs1(1,maxRayIndSchOld:maxRayIndSchOld-1+N);%Теперь уже все по честному
+seq12Olddf(2,:) = seq1OldUpFcRayF0Dec500LpfFs1(1,maxRayIndSchOld:maxRayIndSchOld-1+N+N+fix(CP*N));%РЭЛЕЙ
+% seq1Olddf(1,:) = seq1OldUpFcAwgnF0Dec500LpfFs1(1,401:401+N-1);%Теперь уже все по честному 
+% seq12Olddf(1,:) = seq1OldUpFcAwgnF0Dec500LpfFs1(1,401:401-1+N+N+fix(CP*N));%АГБШ
+% 
+% seq1Olddf(2,:) = seq1OldUpFcRayF0Dec500LpfFs1(1,401:401-1+N);%Теперь уже все по честному
+% seq12Olddf(2,:) = seq1OldUpFcRayF0Dec500LpfFs1(1,401:401-1+N+N+fix(CP*N));%РЭЛЕЙ
+P1Old = sum(conj(seq1Olddf(1,1:N/2)).*seq1Olddf(1,1+N/2:N));
+phiOld = angle(P1Old);
+feAwgnOld = phiOld/pi;
+CorrOld = exp(-1i*2*phiOld*t12/N);
+seq12OlddfCorr = seq12Olddf(1,:).*CorrOld;
+F1Old = fft(seq12OlddfCorr(1:N));F1Old = [F1Old(N/2+1:end),F1Old(1:N/2)];
+F2Old = fft(seq12OlddfCorr(N+fix(CP*N)+1:end));F2Old = [F2Old(N/2+1:end),F2Old(1:N/2)];
+F1F2Old = conj(F1Old).*F2Old;
+% B(1) = power(abs(sum(F1F2.*conj(frs(1:2:end)))),2)/2/power(sum(power(F2,2)),2);
+for i = 1:N/2
+    F1F2shOld = circshift(F1F2Old,[0,2*(i-1)]);
+    BgAwgnOld(i) = power(abs(sum(  F1F2shOld(1:2:end).*  conj(VkOld)      )),2)/2/power(sum(power(abs(F2Old),2)),2);
+end
+P1Old = sum(conj(seq1Olddf(2,1:N/2)).*seq1Olddf(2,1+N/2:N));
+phiOld = angle(P1Old);
+feRayOld = phiOld/pi;
+CorrOld = exp(-1i*2*phiOld*t12/N);
+seq12OlddfCorr = seq12Olddf(2,:).*CorrOld;
+F1Old = fft(seq12OlddfCorr(1:N));F1Old = [F1Old(N/2+1:end),F1Old(1:N/2)];
+F2Old = fft(seq12OlddfCorr(N+fix(CP*N)+1:end));F2Old = [F2Old(N/2+1:end),F2Old(1:N/2)];
+F1F2Old = conj(F1Old).*F2Old;
+% B(1) = power(abs(sum(F1F2.*conj(frs(1:2:end)))),2)/2/power(sum(power(F2,2)),2);
+for i = 1:N/2
+    F1F2shOld = circshift(F1F2Old,[0,2*(i-1)]);
+    BgRayOld(i) = power(abs(sum(  F1F2shOld(1:2:end).*  conj(VkOld)      )),2)/2/power(sum(power(abs(F2Old),2)),2);
+end
+FdSchmidlAwgnOld = (1+256-find(BgAwgnOld==max(BgAwgnOld)))*2 +feAwgnOld;% 2*(513-(find(BgAwgn==max(BgAwgn)))) + feAwgn
+FdSchmidlRayOld = (1+256-find(BgRayOld==max(BgRayOld)))*2 +feRayOld;%2*(513-(find(BgRay==max(BgRay)))) + feRay
+if abs(FdSchmidlRayOld-FreqOffset )>MaxFreqError && EnableOutputError
+    SchmidlOldError = 1;
+    fprintf('ERROR, Schmidl Old!!!\n');
+end
+
+if EnableOutput
+   fprintf('Error of proposed method is %.5f (awgn), %.5f (rayleygh)\n',FdProposedAwgn-FreqOffset,FdProposedRay-FreqOffset);
+   fprintf('Error of modified Schmidl method is %.5f (awgn), %.5f (rayleygh)\n',FdSchmidlAwgn-FreqOffset,FdSchmidlRay-FreqOffset);      
+   fprintf('Error of Schmidl method is %.5f (awgn), %.5f (rayleygh)\n',FdSchmidlAwgnOld-FreqOffset,FdSchmidlRayOld-FreqOffset);      
+end
+% toc;
+% figure;plot(abs(conj(F1).*F2));
+
+% figure;plot(abs(FkAwgn));
+
+%%
+% figure;hold on;
+% plot((fft(A/100)));
+% plot((frs),'r');
+% figure;plot(abs(RespOfFind));
+%%
+% figure;plot(Bg);
+% toc;
+
+##### SOURCE END #####
+--></body></html>
