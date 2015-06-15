@@ -9,7 +9,9 @@ function [ FdOut ] = MyMethod( inSeq,RealSeq,Nfft,dev )
             alp = 1;
         else
             alp = -1;
-        end    
+        end 
+    else
+        alp = 0;
     end
     fmax1 = ((Fcoarse-1-alp)/N*Nfft);
     fmax2 =  ((Fcoarse-1+alp)/N*Nfft);

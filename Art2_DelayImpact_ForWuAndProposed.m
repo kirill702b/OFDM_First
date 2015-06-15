@@ -1,8 +1,8 @@
 clear; close all;
-SNR = 10;
+SNR = -10
 dev = 50;
 Nfft=2^17;
-FreqOffset = 20.4;
+FreqOffset = 21.4;
 N=1024;%number of bits in preamble
 EnableGraphs = 0;
 CP = 0.1; % Cyclic prefix length as part of symbol period

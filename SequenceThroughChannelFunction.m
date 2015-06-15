@@ -1,4 +1,4 @@
-function [ seqOutAwgn ,seqOutRay ] = SequenceThroughChannelFunction( Preamble,N,FreqOffset,SNR,Nnoise,FreqDop,delN)
+function [ seqOutAwgn, seqOutRay ] = SequenceThroughChannelFunction( Preamble,N,FreqOffset,SNR,Nnoise,FreqDop,delN)
     Rd = 18e6; % Data rate bit per second
     CP = 0.1; % Cyclic prefix length as part of symbol period
     Fs1 =(Rd/(1-CP));%20mHz, 50ns 
@@ -19,7 +19,7 @@ function [ seqOutAwgn ,seqOutRay ] = SequenceThroughChannelFunction( Preamble,N,
         RayCh1.ResetBeforeFiltering = 1;
     end
     
-    seqInUpFcAwgn = awgn(filter(RayCh1,seqInUpFc),SNR);   
+    seqInUpFcAwgn = awgn(seqInUpFc,SNR);   
     seqInUpFcAwgn = [seqInUpFcAwgn(delN+1:end),zeros(1,delN)];
     seqInUpFcAwgnF0 = seqInUpFcAwgn.*exp(-1i*2*pi*Fc*tUp3);
     DecFactor = Fs/Fs1;
@@ -38,7 +38,7 @@ function [ seqOutAwgn ,seqOutRay ] = SequenceThroughChannelFunction( Preamble,N,
     
     
     
-    seqInUpFcRay = awgn(seqInUpFc,SNR);%сигнал после АГБШ канала
+    seqInUpFcRay =awgn(filter(RayCh1,seqInUpFc),SNR) ;%сигнал после АГБШ канала
     seqInUpFcRay = [seqInUpFcRay(delN+1:end),zeros(1,delN)];
     seqInUpFcRayF0 = seqInUpFcRay.*exp(-1i*2*pi*Fc*tUp3);
     DecFactor = Fs/Fs1;
