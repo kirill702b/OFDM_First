@@ -1,5 +1,5 @@
 clear; close all;
-load('file_SNR_0_0_delNs_0_100_Ntests_1000_Fdop_0Hz.mat');
+load('file_SNR_-10_-10_delNs_0_100_Ntests_1000_Fdop_0Hz.mat');
 
 ErrWuAwgn = zeros(length(SNRs),length(delNs));
 ErrMyAwgn = zeros(length(SNRs),length(delNs));
@@ -24,14 +24,14 @@ for i= 1:length(SNRs)
     end
     
     figure(i);
-%     plot(delNs/100,20*log10(ErrWuAwgn(i,:)));hold on;
-%     plot(delNs/100,20*log10(ErrMyAwgn(i,:)),'r');
-%     plot(delNs/100,20*log10(ErrWuRay(i,:)),'g');
-%     plot(delNs/100,20*log10(ErrMyRay(i,:)),'k');
-    plot(delNs/100,ErrWuAwgn(i,:));hold on;
-    plot(delNs/100,ErrMyAwgn(i,:),'r');
-    plot(delNs/100,ErrWuRay(i,:),'g');
-    plot(delNs/100,ErrMyRay(i,:),'k');
+    plot(delNs/100,20*log10(ErrWuAwgn(i,:)));hold on;
+    plot(delNs/100,20*log10(ErrMyAwgn(i,:)),'r');
+    plot(delNs/100,20*log10(ErrWuRay(i,:)),'g');
+    plot(delNs/100,20*log10(ErrMyRay(i,:)),'k');
+%     plot(delNs/100,ErrWuAwgn(i,:));hold on;
+%     plot(delNs/100,ErrMyAwgn(i,:),'r');
+%     plot(delNs/100,ErrWuRay(i,:),'g');
+%     plot(delNs/100,ErrMyRay(i,:),'k');
 %     semilogy(delNs/100,ErrWuAwgn(i,:));hold on;
 %     semilogy(delNs/100,ErrMyAwgn(i,:),'r');
 %     semilogy(delNs/100,ErrWuRay(i,:),'g');
