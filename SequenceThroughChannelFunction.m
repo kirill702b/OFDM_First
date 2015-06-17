@@ -19,7 +19,11 @@ function [ seqOutAwgn, seqOutRay ] = SequenceThroughChannelFunction( Preamble,N,
         RayCh1.ResetBeforeFiltering = 1;
     end
     
-    seqInUpFcAwgn = awgn(seqInUpFc,SNR);   
+    if SNR~=100
+        seqInUpFcAwgn = awgn(seqInUpFc,SNR);
+    else
+        seqInUpFcAwgn =seqInUpFc;
+    end
     seqInUpFcAwgn = [seqInUpFcAwgn(delN+1:end),zeros(1,delN)];
     seqInUpFcAwgnF0 = seqInUpFcAwgn.*exp(-1i*2*pi*Fc*tUp3);
     DecFactor = Fs/Fs1;
@@ -37,8 +41,11 @@ function [ seqOutAwgn, seqOutRay ] = SequenceThroughChannelFunction( Preamble,N,
     
     
     
-    
-    seqInUpFcRay =awgn(filter(RayCh1,seqInUpFc),SNR) ;%сигнал после АГБШ канала
+    if SNR~=100
+        seqInUpFcRay =awgn(filter(RayCh1,seqInUpFc),SNR) ;%сигнал после АГБШ канала
+    else
+        seqInUpFcRay=filter(RayCh1,seqInUpFc);
+    end
     seqInUpFcRay = [seqInUpFcRay(delN+1:end),zeros(1,delN)];
     seqInUpFcRayF0 = seqInUpFcRay.*exp(-1i*2*pi*Fc*tUp3);
     DecFactor = Fs/Fs1;

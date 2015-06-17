@@ -1,6 +1,11 @@
 clear; close all;
-load('file_SNR_-10_-10_delNs_0_100_Ntests_1000_Fdop_0Hz.mat');
-
+% load('file_SNR_-15_-15_delNs_0_100_Ntests_1000_Fdop_0Hz.mat');
+[FileName,PathNameLux] = uigetfile({'*.mat'},'Choose optical data file.');
+%[FileName,PathNameLux] = uigetfile({'*.dat;*.mat'},'Choose optical data file.',pathNameMy);
+if FileName ~= 0, %Если есть файл с оптическими данными
+    filename = [PathNameLux,FileName]
+end
+load(filename);
 ErrWuAwgn = zeros(length(SNRs),length(delNs));
 ErrMyAwgn = zeros(length(SNRs),length(delNs));
 ErrWuRay = zeros(length(SNRs),length(delNs));
@@ -24,18 +29,18 @@ for i= 1:length(SNRs)
     end
     
     figure(i);
-    plot(delNs/100,20*log10(ErrWuAwgn(i,:)));hold on;
-    plot(delNs/100,20*log10(ErrMyAwgn(i,:)),'r');
-    plot(delNs/100,20*log10(ErrWuRay(i,:)),'g');
-    plot(delNs/100,20*log10(ErrMyRay(i,:)),'k');
+%     plot(delNs/100,20*log10(ErrWuAwgn(i,:)));hold on;
+%     plot(delNs/100,20*log10(ErrMyAwgn(i,:)),'r');
+%     plot(delNs/100,20*log10(ErrWuRay(i,:)),'g');
+%     plot(delNs/100,20*log10(ErrMyRay(i,:)),'k');
 %     plot(delNs/100,ErrWuAwgn(i,:));hold on;
 %     plot(delNs/100,ErrMyAwgn(i,:),'r');
 %     plot(delNs/100,ErrWuRay(i,:),'g');
 %     plot(delNs/100,ErrMyRay(i,:),'k');
-%     semilogy(delNs/100,ErrWuAwgn(i,:));hold on;
-%     semilogy(delNs/100,ErrMyAwgn(i,:),'r');
-%     semilogy(delNs/100,ErrWuRay(i,:),'g');
-%     semilogy(delNs/100,ErrMyRay(i,:),'k');
+    semilogy(delNs/100,ErrWuAwgn(i,:));hold on;
+    semilogy(delNs/100,ErrMyAwgn(i,:),'r');
+    semilogy(delNs/100,ErrWuRay(i,:),'g');
+    semilogy(delNs/100,ErrMyRay(i,:),'k');
     grid on;xlabel('Delay, ind');ylabel('MSR error, ici');legend('WuAwgn','MyAwgn','WuRay','MyRay');
 end
 
