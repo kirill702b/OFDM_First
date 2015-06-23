@@ -37,11 +37,13 @@ for i= 1:length(SNRs)
 %     plot(delNs/100,ErrMyAwgn(i,:),'r');
 %     plot(delNs/100,ErrWuRay(i,:),'g');
 %     plot(delNs/100,ErrMyRay(i,:),'k');
-    semilogy(delNs/100,ErrWuAwgn(i,:));hold on;
-    semilogy(delNs/100,ErrMyAwgn(i,:),'r');
-    semilogy(delNs/100,ErrWuRay(i,:),'g');
-    semilogy(delNs/100,ErrMyRay(i,:),'k');
-    grid on;xlabel('Delay, ind');ylabel('MSR error, ici');legend('WuAwgn','MyAwgn','WuRay','MyRay');
+    semilogy(delNs/100,ErrWuAwgn(i,:),'bs-');hold on;
+    semilogy(delNs/100,ErrMyAwgn(i,:),'ro-');
+    semilogy(delNs/100,ErrWuRay(i,:),'gv-');
+    semilogy(delNs/100,ErrMyRay(i,:),'kd-');
+    grid on;xlabel('Временная задержка, интервалов дискретизации');ylabel('Оценки ВПКЧР');
+    %legend('Ф. Ву, АБГШ','Предложеный авторами, АГБШ','Ф. Ву, Релеевские замирания','Предложеный авторами, Релеевские замирания');
+    legend('1','2','3','4');
 end
 
 

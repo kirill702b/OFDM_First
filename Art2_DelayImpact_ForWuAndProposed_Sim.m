@@ -1,11 +1,11 @@
 clear all; close all;
 FreqDop = 0.000;
-Ntests = 5000;
+Ntests = 25000;
 SNR_n = 0;
 FreqOffset_n = 0;
-SNRs =[-10];%50;% 10.^((0:3:25)/10);
+SNRs =[100];%50;% 10.^((0:3:25)/10);
 Freqs = 12.4;% 1.1:0.3:2.3;
-delNs = 0:10:100;%150;
+delNs = 60:2:100;%150;
 delN_n = 0;
 dev = 50;
 Nfft=2^17;
