@@ -14,13 +14,13 @@ ErrMyRay = zeros(length(SNRs),length(delNs));
 
 for i= 1:length(SNRs)
     for j = 1:length(delNs)
-        ind = find(abs(FdWuAwgn((i),1,(j),:)-Freqs) >=0.5 );
+        ind = find(abs(FdWuAwgn((i),1,(j),:)-Freqs) >=0.01 );
         ErrWuAwgn(i,j)  = length(ind)/length(FdWuAwgn((i),1,(j),:));
-        ind = find(abs(FdMyAwgn((i),1,(j),:)-Freqs) >=0.5 );
+        ind = find(abs(FdMyAwgn((i),1,(j),:)-Freqs) >=0.01 );
         ErrMyAwgn(i,j)  =length(ind)/length(FdWuAwgn((i),1,(j),:));
-        ind = find(abs(FdWuRay((i),1,(j),:)-Freqs) >=0.5 );
+        ind = find(abs(FdWuRay((i),1,(j),:)-Freqs) >=0.01 );
         ErrWuRay(i,j)  = length(ind)/length(FdWuAwgn((i),1,(j),:));
-        ind = find(abs(FdMyRay((i),1,(j),:)-Freqs) >=0.5 );
+        ind = find(abs(FdMyRay((i),1,(j),:)-Freqs) >=0.01 );
         ErrMyRay(i,j)  = length(ind)/length(FdWuAwgn((i),1,(j),:));
 %         ErrWuAwgn(i,j)  = sqrt(mean(power(FdWuAwgn((i),1,(j),:)-Freqs,2)));
 %         ErrMyAwgn(i,j)  = sqrt(mean(power(FdMyAwgn((i),1,(j),:)-Freqs,2)));
@@ -33,8 +33,8 @@ for i= 1:length(SNRs)
 %     plot(delNs/100,20*log10(ErrMyAwgn(i,:)),'r');
 %     plot(delNs/100,20*log10(ErrWuRay(i,:)),'g');
 %     plot(delNs/100,20*log10(ErrMyRay(i,:)),'k');
-%     plot(delNs/100,ErrWuAwgn(i,:));hold on;
-%     plot(delNs/100,ErrMyAwgn(i,:),'r');
+%         plot(delNs/100,ErrWuAwgn(i,:));hold on;
+%         plot(delNs/100,ErrMyAwgn(i,:),'r');
 %     plot(delNs/100,ErrWuRay(i,:),'g');
 %     plot(delNs/100,ErrMyRay(i,:),'k');
     semilogy(delNs/100,ErrWuAwgn(i,:),'bs-');hold on;

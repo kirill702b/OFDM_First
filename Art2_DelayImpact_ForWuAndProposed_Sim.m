@@ -1,11 +1,11 @@
 clear all; close all;
 FreqDop = 0.000;
-Ntests = 25000;
+Ntests = 200;%250000;
 SNR_n = 0;
 FreqOffset_n = 0;
-SNRs =[100];%50;% 10.^((0:3:25)/10);
+SNRs =-10:10:30;%50;% 10.^((0:3:25)/10);
 Freqs = 12.4;% 1.1:0.3:2.3;
-delNs = 60:2:100;%150;
+delNs = 0;%:10:100;%150;
 delN_n = 0;
 dev = 50;
 Nfft=2^17;
@@ -36,5 +36,5 @@ for SNR_n=1:length(SNRs)%SNR = SNRs
 end
 toc;
 %%
-save(['file_SNR_',num2str(SNRs(1)),'_',num2str(SNRs(end)),'_delNs_',num2str(delNs(1)),'_',num2str(delNs(end)),'_Ntests_',num2str(Ntests),'_Fdop_',num2str(FreqDop),'Hz','.mat'],'FdWuAwgn','FdMyAwgn','FdWuRay','FdMyRay','Freqs','SNRs','Ntests','delNs');
+save(['file_NoCar_SNR_',num2str(SNRs(1)),'_',num2str(SNRs(end)),'_delNs_',num2str(delNs(1)),'_',num2str(delNs(end)),'_Ntests_',num2str(Ntests),'_Fdop_',num2str(FreqDop),'Hz','.mat'],'FdWuAwgn','FdMyAwgn','FdWuRay','FdMyRay','Freqs','SNRs','Ntests','delNs');
 
